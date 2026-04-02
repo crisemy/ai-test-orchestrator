@@ -133,11 +133,11 @@ test('Empty fields', async ({ page }) => {
 # -------------------------
 def generate_tests():
 
-    print("🚀 Generating Playwright tests...\n")
+    print("Generating Playwright tests...\n")
 
     for attempt in range(3):
 
-        print(f"\n🔁 Attempt {attempt + 1}")
+        print(f"\nAttempt {attempt + 1}")
 
         response = ollama.chat(
             model=MODEL,
@@ -149,27 +149,27 @@ def generate_tests():
 
         raw_output = response["message"]["content"]
 
-        print("\n🧪 RAW OUTPUT:\n")
+        print("\nRAW OUTPUT:\n")
         print(raw_output)
 
         js_code = extract_js(raw_output)
 
         if not js_code:
-            print("⚠️ No se detectó bloque JS, reintentando...")
+            print("No se detectó bloque JS, reintentando...")
             continue
 
         normalized = normalize_code(js_code)
 
-        print("\n🧼 NORMALIZED CODE:\n")
+        print("\nNORMALIZED CODE:\n")
         print(normalized)
 
         if is_valid_playwright(normalized):
             save_file(normalized)
             return
 
-        print("⚠️ Código inválido según validación, reintentando...")
+        print("Código inválido según validación, reintentando...")
 
-    print("\n❌ Using fallback code...\n")
+    print("\nUsing fallback code...\n")
     save_file(fallback_code())
 
 
@@ -183,7 +183,7 @@ def save_file(code):
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(code)
 
-    print(f"\n💾 Test saved in: {OUTPUT_FILE}")
+    print(f"\nTest saved in: {OUTPUT_FILE}")
 
 
 # -------------------------
