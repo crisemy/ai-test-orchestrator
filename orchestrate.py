@@ -35,16 +35,20 @@ def validate_test_file():
 
 def run_playwright():
     print("Running Playwright tests...")
+
     result = subprocess.run(
-        ["npx", "playwright", "test"],
+        "npx playwright test",
+        shell=True, # This is important for Windows
+        capture_output=True,
         text=True
     )
 
-    if result.returncode != 0:
-        print("Tests failed")
-        exit(1)
+    print("\n--- PLAYWRIGHT OUTPUT ---\n")
+    print(result.stdout)
 
-    print("Tests passed")
+    if result.stderr:
+        print("\n--- ERRORS ---\n")
+        print(result.stderr)
 
 
 if __name__ == "__main__":

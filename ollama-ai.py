@@ -48,59 +48,42 @@ Do not change structure.
 
 
 # -------------------------
-# EXTRAER SOLO JS
+# Extract only JavaScript code block
 # -------------------------
 def extract_js(text):
-    match = re.search(r"```javascript(.*?)```", text, re.DOTALL)
-    if match:
-        return match.group(1).strip()
+    if "```javascript" in text:
+        return text.split("```javascript")[1].split("```")[0].strip()
+    elif "```" in text:
+        return text.split("```")[1].split("```")[0].strip()
     return None
 
 
 # -------------------------
-# NORMALIZAR CÓDIGO
+# Normalize code (non-destructive)
 # -------------------------
 def normalize_code(code):
-    lines = code.split("\n")
-
-    clean_lines = []
-    seen = set()
-
-    for line in lines:
-        l = line.strip()
-
-        # eliminar líneas vacías repetidas
-        if l == "":
-            continue
-
-        # eliminar duplicados exactos
-        if l in seen:
-            continue
-
-        seen.add(l)
-        clean_lines.append(line)
-
-    return "\n".join(clean_lines)
+    # Only trim whitespace, do not alter structure
+    return code.strip()
 
 
 # -------------------------
-# VALIDAR CÓDIGO
+# Validate Playwright code
 # -------------------------
 def is_valid_playwright(code):
     if not code:
         return False
 
-    # checks mínimos reales
     return (
         "const { test, expect }" in code and
         code.count("test(") >= 3 and
         "await page.goto" in code and
-        "await expect" in code
+        "await expect" in code and
+        code.count("{") == code.count("}")  # basic syntax sanity check
     )
 
 
 # -------------------------
-# FALLBACK
+# Fallback code (safe baseline)
 # -------------------------
 def fallback_code():
     return """const { test, expect } = require('@playwright/test');
@@ -129,7 +112,7 @@ test('Empty fields', async ({ page }) => {
 
 
 # -------------------------
-# GENERAR TESTS
+# Generate tests using LLM
 # -------------------------
 def generate_tests():
 
@@ -155,7 +138,7 @@ def generate_tests():
         js_code = extract_js(raw_output)
 
         if not js_code:
-            print("No se detectó bloque JS, reintentando...")
+            print("No JavaScript block detected, retrying...")
             continue
 
         normalized = normalize_code(js_code)
@@ -167,14 +150,14 @@ def generate_tests():
             save_file(normalized)
             return
 
-        print("Código inválido según validación, reintentando...")
+        print("Invalid code based on validation, retrying...")
 
     print("\nUsing fallback code...\n")
     save_file(fallback_code())
 
 
 # -------------------------
-# GUARDAR ARCHIVO
+# Save file
 # -------------------------
 def save_file(code):
 
@@ -187,7 +170,7 @@ def save_file(code):
 
 
 # -------------------------
-# RUN
+# Entry point
 # -------------------------
 if __name__ == "__main__":
     generate_tests()
