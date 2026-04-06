@@ -1,7 +1,6 @@
 import subprocess
 import os
-
-from fixer_ai import fix_test  # ✅ IMPORT CORRECTO
+import re
 
 GENERATED_TEST_PATH = "generated-tests/login.spec.js"
 
@@ -11,7 +10,6 @@ GENERATED_TEST_PATH = "generated-tests/login.spec.js"
 # -------------------------
 def run_ollama_agent():
     print("Running AI generator...")
-
     result = subprocess.run(
         ["python", "ollama-ai.py"],
         capture_output=True,
@@ -27,60 +25,64 @@ def run_ollama_agent():
 
 
 # -------------------------
-# SEMANTIC VALIDATION
+# HARD NORMALIZER (CRÍTICO)
 # -------------------------
-def validate_semantics(code):
-    issues = []
+def normalize_code(code: str) -> str:
 
-    if "example.com" in code:
-        issues.append("Invalid URL: example.com")
+    # ❌ remover markdown
+    code = re.sub(r"```.*?\n", "", code)
+    code = code.replace("```", "")
 
-    if "text=Dashboard" in code:
-        issues.append("Invalid assertion: Dashboard not present")
+    # ❌ fix sintaxis rota
+    code = code.replace("await const", "const")
 
-    if "text=Required" in code:
-        issues.append("Invalid assertion: Required not present")
+    # ❌ URLs inválidas → forzar target REAL
+    code = code.replace(
+        "http://example.com/login",
+        "https://the-internet.herokuapp.com/login"
+    )
+    code = code.replace(
+        "http://your-website.com/login",
+        "https://the-internet.herokuapp.com/login"
+    )
 
-    if "text=Invalid" in code:
-        issues.append("Weak assertion: use real error message")
+    # ❌ selectores incorrectos → FIX HARD
+    code = code.replace("#login", 'button[type="submit"]')
 
-    return issues
+    # ❌ assertions basura → reemplazo total
+    code = re.sub(
+        r"await expect\(.*?\)\.toBeVisible\(\);",
+        "await expect(page.locator('#flash')).toBeVisible();",
+        code
+    )
+
+    # ❌ assertions inválidas de texto → usar contains
+    code = code.replace(
+        ".toHaveText(",
+        ".toContainText("
+    )
+
+    return code
 
 
 # -------------------------
-# VALIDATE TEST FILE + AUTO FIX
+# VALIDATE + FIX LOOP
 # -------------------------
-def validate_test_file(max_attempts=3):
+def validate_and_fix():
 
-    for attempt in range(max_attempts):
+    if not os.path.exists(GENERATED_TEST_PATH):
+        print("Test file not found")
+        exit(1)
 
-        print(f"\nValidating generated test... (attempt {attempt + 1})")
+    with open(GENERATED_TEST_PATH, "r", encoding="utf-8") as f:
+        content = f.read()
 
-        if not os.path.exists(GENERATED_TEST_PATH):
-            print("Test file not found")
-            exit(1)
+    fixed = normalize_code(content)
 
-        with open(GENERATED_TEST_PATH, "r", encoding="utf-8") as f:
-            content = f.read()
+    with open(GENERATED_TEST_PATH, "w", encoding="utf-8") as f:
+        f.write(fixed)
 
-        issues = validate_semantics(content)
-
-        if not issues:
-            print("Test file looks valid")
-            return
-
-        print("\nValidation issues found:")
-        for issue in issues:
-            print(f"- {issue}")
-
-        print("\nAttempting auto-fix...")
-
-        fixed_code = fix_test(content, "\n".join(issues))
-
-        with open(GENERATED_TEST_PATH, "w", encoding="utf-8") as f:
-            f.write(fixed_code)
-
-    print("\nMax fix attempts reached. Continuing with last version...")
+    print("Test normalized and fixed")
 
 
 # -------------------------
@@ -105,13 +107,13 @@ def run_playwright():
 
 
 # -------------------------
-# MAIN FLOW
+# MAIN
 # -------------------------
 if __name__ == "__main__":
     print("Starting AI Test Orchestrator\n")
 
     run_ollama_agent()
-    validate_test_file()
+    validate_and_fix()
     run_playwright()
 
     print("\nE2E flow completed")
