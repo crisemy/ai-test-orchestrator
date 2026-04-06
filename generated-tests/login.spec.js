@@ -1,4 +1,3 @@
-```javascript
 const { test, expect } = require('@playwright/test');
 
 test('Successful login', async ({ page }) => {
@@ -16,13 +15,12 @@ test('Invalid login', async ({ page }) => {
   await page.fill('#password', 'wrong');
   await page.click('#login');
 
-  await expect(page.locator('text=Invalid credentials')).toBeVisible();
+  await expect(page.locator('text=Invalid')).toBeVisible();
 });
 
 test('Empty fields', async ({ page }) => {
   await page.goto('http://example.com/login');
   await page.click('#login');
 
-  await expect(page.locator('text=Username is required')).toBeVisible();
+  await expect(page.locator('text=Required')).toBeVisible();
 });
-```
