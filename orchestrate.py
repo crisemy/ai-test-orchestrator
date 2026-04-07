@@ -107,6 +107,16 @@ def run_playwright():
 
 
 # -------------------------
+# RUN POM GENERATOR
+# -------------------------
+
+def run_pom_agent():
+    print("Generating Page Object Model...")
+    from pom_generator import run_pom_generation
+    run_pom_generation()
+
+
+# -------------------------
 # MAIN
 # -------------------------
 if __name__ == "__main__":
@@ -115,5 +125,6 @@ if __name__ == "__main__":
     run_ollama_agent()
     validate_and_fix()
     run_playwright()
+    run_pom_agent()
 
     print("\nE2E flow completed")
