@@ -29,14 +29,14 @@ def run_ollama_agent():
 # -------------------------
 def normalize_code(code: str) -> str:
 
-    # ❌ remover markdown
+    # remover markdown
     code = re.sub(r"```.*?\n", "", code)
     code = code.replace("```", "")
 
-    # ❌ fix sintaxis rota
+    # fix sintaxis rota
     code = code.replace("await const", "const")
 
-    # ❌ URLs inválidas → forzar target REAL
+    # URLs inválidas → forzar target REAL
     code = code.replace(
         "http://example.com/login",
         "https://the-internet.herokuapp.com/login"
@@ -46,17 +46,17 @@ def normalize_code(code: str) -> str:
         "https://the-internet.herokuapp.com/login"
     )
 
-    # ❌ selectores incorrectos → FIX HARD
+    # selectores incorrectos → FIX HARD
     code = code.replace("#login", 'button[type="submit"]')
 
-    # ❌ assertions basura → reemplazo total
+    # assertions basura → reemplazo total
     code = re.sub(
         r"await expect\(.*?\)\.toBeVisible\(\);",
         "await expect(page.locator('#flash')).toBeVisible();",
         code
     )
 
-    # ❌ assertions inválidas de texto → usar contains
+    # assertions inválidas de texto → usar contains
     code = code.replace(
         ".toHaveText(",
         ".toContainText("
