@@ -1,7 +1,7 @@
 {
   "name": "ai-test-orchestrator",
   "version": "1.0.0",
-  "description": "AI-powered pipeline that:\r - Generates Playwright tests using LLMs\r - Refactors them into Page Object Model\r - Executes tests automatically\r - Analyzes results",
+  "description": "AI-powered self-healing E2E testing pipeline using local LLMs (Ollama) and Playwright.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
