@@ -2,9 +2,9 @@ class LoginPage {
   constructor(page) {
     this.page = page;
     this.username = page.locator('#username');
-    this.buttonbtn = page.locator('button[type=');
     this.flash = page.locator('#flash');
     this.password = page.locator('#password');
+    this.buttonbtn = page.locator('button[type=');
   }
 
   async login(username, password) {
