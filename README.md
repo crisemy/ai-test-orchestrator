@@ -6,7 +6,7 @@
 
 An intelligent, self-healing E2E testing pipeline that leverages Local LLMs (via Ollama) to generate, validate, and evolve Playwright test suites.
 
-## 🌟 Key Features
+## Key Features
 
 - **AI-Powered Test Generation**: Automatically generates multi-scenario Playwright tests using `qwen2.5-coder`.
 - **Self-Healing Normalization**: A custom "Hard Normalizer" loop that corrects common LLM hallucinations, fixes selectors, and maps generic URLs to real test environments.
@@ -14,7 +14,7 @@ An intelligent, self-healing E2E testing pipeline that leverages Local LLMs (via
 - **Page Object Model (POM) Evolution**: Dynamically extracts selectors from generated tests and refactors them into professional POM structures.
 - **Local & Private**: Powered by Ollama, ensuring your testing logic and data stay on your machine.
 
-## 🔄 Orchestration Workflow
+## Orchestration Workflow
 
 The `orchestrator.py` script manages the entire lifecycle:
 
@@ -23,7 +23,7 @@ The `orchestrator.py` script manages the entire lifecycle:
 3.  **Validation**: Executes the generated tests using Playwright.
 4.  **POM Generation**: Analyzes the passing tests to create reusable Page Objects in the `pom/` directory.
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 - **Python 3.10+**
 - **Node.js 18+**
@@ -33,7 +33,7 @@ The `orchestrator.py` script manages the entire lifecycle:
   ollama pull qwen2.5-coder:7b
   ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Clone the Repository
 ```bash
@@ -60,7 +60,7 @@ npm install
 npx playwright install --with-deps
 ```
 
-## 🎮 Usage
+## Usage
 
 ### Run the Full Pipeline
 The orchestrator will run the AI agent, fix the code, execute tests, and generate POMs:
@@ -74,7 +74,7 @@ If you just want to run the generated tests:
 npx playwright test
 ```
 
-## 📂 Project Structure
+## Project Structure
 
 - `orchestrator.py`: The brain of the project. Manages the execution flow.
 - `ollama-ai.py`: Interface with the local LLM for test generation.
@@ -83,5 +83,5 @@ npx playwright test
 - `pom/`: Directory for generated Page Objects.
 - `test-results/`: Artifacts from Playwright executions.
 
-## 📝 License
-This project is licensed under the ISC License.
+## License
+This project is licensed under the ISC License.
