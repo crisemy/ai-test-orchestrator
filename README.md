@@ -15,6 +15,6 @@ AI-powered pipeline that:
 ## Run
 
 ```bash
-python orchestrate.py # OR
+python orchestrator.py # OR
 npx playwright test # to run the tests
 ```
