@@ -14,10 +14,10 @@ GENERATED_TEST_PATH = "generated-tests/login.spec.js"
 # -------------------------
 # RUN AI AGENT
 # -------------------------
-def run_ollama_agent():
+def run_ollama_agent(url, model):
     print("Running AI generator...")
     result = subprocess.run(
-        ["python", "ollama-ai.py"],
+        ["python", "ollama-ai.py", url, model],
         capture_output=True,
         text=True
     )
@@ -157,7 +157,7 @@ def main():
     # Call the appropriate engine
     if args.engine == "ollama":
         console.print(Panel("Using Ollama (local) engine...", style="green"))
-        run_ollama_agent()
+        run_ollama_agent(args.url, args.model)
     elif args.engine == "cloud":
         console.print(Panel("Using Cloud engine...", style="blue"))
         # Placeholder for cloud engine logic

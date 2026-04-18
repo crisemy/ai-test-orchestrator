@@ -67,7 +67,7 @@ The orchestrator will now run the AI agent, fix the code, execute tests, and gen
 Make sure to download the proper LLM in your .venv. For instance: "ollama pull qwen2.5-coder:7b"
 ```bash
 # Updated command:
-python orchestrator.py --url "https://the-internet.herokuapp.com/login" --feature "Login Page" --model "ollama-model" --engine "ollama"
+python orchestrator.py --url "https://the-internet.herokuapp.com/login" --feature "Login Page" --model "qwen2.5-coder:7b" --engine "ollama"
 ```
 
 ### Rich Terminal Output

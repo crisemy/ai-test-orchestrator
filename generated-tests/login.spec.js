@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 test('Successful login', async ({ page }) => {
-  await page.goto('http://example.com/login');
+  await page.goto('https://the-internet.herokuapp.com/login');
   await page.fill('#username', 'user');
   await page.fill('#password', 'pass');
   await page.click('#login');
@@ -10,7 +10,7 @@ test('Successful login', async ({ page }) => {
 });
 
 test('Invalid login', async ({ page }) => {
-  await page.goto('http://example.com/login');
+  await page.goto('https://the-internet.herokuapp.com/login');
   await page.fill('#username', 'invalid');
   await page.fill('#password', 'wrong');
   await page.click('#login');
@@ -19,7 +19,7 @@ test('Invalid login', async ({ page }) => {
 });
 
 test('Empty fields', async ({ page }) => {
-  await page.goto('http://example.com/login');
+  await page.goto('https://the-internet.herokuapp.com/login');
   await page.click('#login');
 
   await expect(page.locator('text=Required')).toBeVisible();

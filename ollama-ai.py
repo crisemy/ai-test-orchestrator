@@ -1,6 +1,7 @@
 import ollama
 import re
 import os
+import string
 
 # Adding different models. 
 # Alternatively, you can use "glm-5.1:cloud", "qwen3.5:cloud", etc for a more code-focused models.
@@ -8,44 +9,49 @@ MODEL = 'qwen2.5-coder:7b'
 
 OUTPUT_FILE = "generated-tests/login.spec.js"
 
-PROMPT = """
-Generate VALID Playwright test code.
+# -------------------------
+# Dynamic Prompt Template
+# -------------------------
+PROMPT_TEMPLATE = string.Template(
+    """
+    Generate VALID Playwright test code.
 
-STRICT:
-- Output ONLY JavaScript
-- NO explanations
-- NO comments
-- Use EXACTLY this structure
+    STRICT:
+    - Output ONLY JavaScript
+    - NO explanations
+    - NO comments
+    - Use EXACTLY this structure
 
-const { test, expect } = require('@playwright/test');
+    const { test, expect } = require('@playwright/test');
 
-test('Successful login', async ({ page }) => {
-  await page.goto('http://example.com/login');
-  await page.fill('#username', 'user');
-  await page.fill('#password', 'pass');
-  await page.click('#login');
+    test('Successful login', async ({ page }) => {
+      await page.goto('$url');
+      await page.fill('#username', 'user');
+      await page.fill('#password', 'pass');
+      await page.click('#login');
 
-  await expect(page.locator('text=Dashboard')).toBeVisible();
-});
+      await expect(page.locator('text=Dashboard')).toBeVisible();
+    });
 
-test('Invalid login', async ({ page }) => {
-  await page.goto('http://example.com/login');
-  await page.fill('#username', 'invalid');
-  await page.fill('#password', 'wrong');
-  await page.click('#login');
+    test('Invalid login', async ({ page }) => {
+      await page.goto('$url');
+      await page.fill('#username', 'invalid');
+      await page.fill('#password', 'wrong');
+      await page.click('#login');
 
-  await expect(page.locator('text=Invalid')).toBeVisible();
-});
+      await expect(page.locator('text=Invalid')).toBeVisible();
+    });
 
-test('Empty fields', async ({ page }) => {
-  await page.goto('http://example.com/login');
-  await page.click('#login');
+    test('Empty fields', async ({ page }) => {
+      await page.goto('$url');
+      await page.click('#login');
 
-  await expect(page.locator('text=Required')).toBeVisible();
-});
+      await expect(page.locator('text=Required')).toBeVisible();
+    });
 
-Do not change structure.
-"""
+    Do not change structure.
+    """
+)
 
 # -------------------------
 # Extract only JavaScript code block
@@ -110,7 +116,7 @@ test('Empty fields', async ({ page }) => {
 # -------------------------
 # Generate tests using LLM
 # -------------------------
-def generate_tests():
+def generate_tests(url):
 
     print("Generating Playwright tests...\n")
 
@@ -118,9 +124,11 @@ def generate_tests():
 
         print(f"\nAttempt {attempt + 1}")
 
+        dynamic_prompt = PROMPT_TEMPLATE.substitute(url=url)
+
         response = ollama.chat(
             model=MODEL,
-            messages=[{"role": "user", "content": PROMPT}],
+            messages=[{"role": "user", "content": dynamic_prompt}],
             options={
                 "temperature": 0.2
             }
@@ -167,4 +175,12 @@ def save_file(code):
 # Entry point
 # -------------------------
 if __name__ == "__main__":
-    generate_tests()
+    import sys
+    if len(sys.argv) != 3:
+        print("Usage: python ollama-ai.py <url> <model>")
+        exit(1)
+
+    url = sys.argv[1]
+    MODEL = sys.argv[2]
+
+    generate_tests(url)
