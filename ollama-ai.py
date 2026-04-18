@@ -2,10 +2,11 @@ import ollama
 import re
 import os
 
+# Adding different models. 
+# Alternatively, you can use "glm-5.1:cloud", "qwen3.5:cloud", etc for a more code-focused models.
 MODEL = 'qwen2.5-coder:7b'
 
 OUTPUT_FILE = "generated-tests/login.spec.js"
-
 
 PROMPT = """
 Generate VALID Playwright test code.
@@ -46,7 +47,6 @@ test('Empty fields', async ({ page }) => {
 Do not change structure.
 """
 
-
 # -------------------------
 # Extract only JavaScript code block
 # -------------------------
@@ -57,14 +57,12 @@ def extract_js(text):
         return text.split("```")[1].split("```")[0].strip()
     return None
 
-
 # -------------------------
 # Normalize code (non-destructive)
 # -------------------------
 def normalize_code(code):
     # Only trim whitespace, do not alter structure
     return code.strip()
-
 
 # -------------------------
 # Validate Playwright code
@@ -80,7 +78,6 @@ def is_valid_playwright(code):
         "await expect" in code and
         code.count("{") == code.count("}")  # basic syntax sanity check
     )
-
 
 # -------------------------
 # Fallback code (safe baseline)
@@ -109,7 +106,6 @@ test('Empty fields', async ({ page }) => {
   await page.click('#login');
   await expect(page.locator('text=Required')).toBeVisible();
 });"""
-
 
 # -------------------------
 # Generate tests using LLM
@@ -155,7 +151,6 @@ def generate_tests():
     print("\nUsing fallback code...\n")
     save_file(fallback_code())
 
-
 # -------------------------
 # Save file
 # -------------------------
@@ -167,7 +162,6 @@ def save_file(code):
         f.write(code)
 
     print(f"\nTest saved in: {OUTPUT_FILE}")
-
 
 # -------------------------
 # Entry point

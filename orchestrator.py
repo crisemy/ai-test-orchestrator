@@ -1,9 +1,9 @@
 import subprocess
 import os
 import re
+import argparse
 
 GENERATED_TEST_PATH = "generated-tests/login.spec.js"
-
 
 # -------------------------
 # RUN AI AGENT
@@ -117,14 +117,43 @@ def run_pom_agent():
 
 
 # -------------------------
-# MAIN
+# PARSE CLI ARGUMENTS
 # -------------------------
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="AI Test Orchestrator CLI")
+    parser.add_argument("--url", required=True, help="Target URL to test")
+    parser.add_argument("--feature", required=True, help="Description of the feature to test")
+    parser.add_argument("--model", required=True, help="Specific Ollama or Cloud model to use")
+    parser.add_argument("--engine", choices=["ollama", "cloud"], required=True, help="Choose between Ollama (local) or Cloud engine")
+    return parser.parse_args()
+
+# -------------------------
+# EXTENDED MAIN FUNCTION
+# -------------------------
+def main():
+    args = parse_arguments()
+
+    # Validate URL
+    if not args.url.startswith("http"):
+        print("Invalid URL. Please provide a valid URL starting with http or https.")
+        exit(1)
+
+    print(f"URL: {args.url}")
+    print(f"Feature: {args.feature}")
+    print(f"Model: {args.model}")
+    print(f"Engine: {args.engine}")
+
+    # Call the appropriate engine
+    if args.engine == "ollama":
+        print("Using Ollama (local) engine...")
+        run_ollama_agent()
+    elif args.engine == "cloud":
+        print("Using Cloud engine...")
+        # Placeholder for cloud engine logic
+        print("Cloud engine functionality not implemented yet.")
+
+    # Placeholder for additional logic
+    print("Script execution completed.")
+
 if __name__ == "__main__":
-    print("Starting AI Test Orchestrator\n")
-
-    run_ollama_agent()
-    validate_and_fix()
-    run_playwright()
-    run_pom_agent()
-
-    print("\nE2E flow completed")
+    main()
