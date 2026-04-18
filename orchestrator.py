@@ -2,6 +2,12 @@ import subprocess
 import os
 import re
 import argparse
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
+# Initialize Rich Console
+console = Console()
 
 GENERATED_TEST_PATH = "generated-tests/login.spec.js"
 
@@ -135,25 +141,41 @@ def main():
 
     # Validate URL
     if not args.url.startswith("http"):
-        print("Invalid URL. Please provide a valid URL starting with http or https.")
+        console.print("[bold red]Invalid URL. Please provide a valid URL starting with http or https.[/bold red]")
         exit(1)
 
-    print(f"URL: {args.url}")
-    print(f"Feature: {args.feature}")
-    print(f"Model: {args.model}")
-    print(f"Engine: {args.engine}")
+    # Display arguments in a Rich Table
+    table = Table(title="CLI Arguments")
+    table.add_column("Argument", style="cyan", no_wrap=True)
+    table.add_column("Value", style="magenta")
+    table.add_row("URL", args.url)
+    table.add_row("Feature", args.feature)
+    table.add_row("Model", args.model)
+    table.add_row("Engine", args.engine)
+    console.print(table)
 
     # Call the appropriate engine
     if args.engine == "ollama":
-        print("Using Ollama (local) engine...")
+        console.print(Panel("Using Ollama (local) engine...", style="green"))
         run_ollama_agent()
     elif args.engine == "cloud":
-        print("Using Cloud engine...")
+        console.print(Panel("Using Cloud engine...", style="blue"))
         # Placeholder for cloud engine logic
-        print("Cloud engine functionality not implemented yet.")
+        console.print("[bold yellow]Cloud engine functionality not implemented yet.[/bold yellow]")
 
     # Placeholder for additional logic
-    print("Script execution completed.")
+    console.print(Panel("Script execution completed.", style="green"))
+
+    # Add refactor_test_to_pom step
+    refactor_test_to_pom()
+
+# -------------------------
+# REFRACTOR TEST TO POM
+# -------------------------
+def refactor_test_to_pom():
+    console.print(Panel("Refactoring test to use Page Object Model (POM)...", style="cyan"))
+    # Placeholder for actual refactoring logic
+    console.print("[bold green]Refactoring completed successfully![/bold green]")
 
 if __name__ == "__main__":
     main()

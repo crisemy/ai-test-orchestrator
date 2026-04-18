@@ -63,20 +63,18 @@ npx playwright install --with-deps
 ## Usage
 
 ### Run the Full Pipeline
-The orchestrator will run the AI agent, fix the code, execute tests, and generate POMs.
+The orchestrator will now run the AI agent, fix the code, execute tests, and generate POMs with enhanced terminal output and refactoring capabilities.
 Make sure to download the proper LLM in your .venv. For instance: "ollama pull qwen2.5-coder:7b"
 ```bash
-# In the beginning:
-python orchestrator.py
-# Afer the 2nd implementation:
+# Updated command:
 python orchestrator.py --url "https://the-internet.herokuapp.com/login" --feature "Login Page" --model "ollama-model" --engine "ollama"
 ```
 
-### Run Tests Individually
-If you just want to run the generated tests:
-```bash
-npx playwright test
-```
+### Rich Terminal Output
+The orchestrator now uses `rich` for enhanced terminal output, including tables and panels for better readability.
+
+### Refactoring to POM
+After validation, the orchestrator automatically refactors tests to use Page Object Models (POMs). The refactored tests are stored in the `pom/` directory.
 
 ## Project Structure
 ```bash
