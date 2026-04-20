@@ -1,0 +1,3 @@
+{
+  "template": "Generate VALID Playwright test code.\n\nSTRICT:\n- Output ONLY JavaScript\n- NO explanations\n- NO comments\n- Use EXACTLY this structure\n\nconst { test, expect } = require('@playwright/test');\n\n..."
+}

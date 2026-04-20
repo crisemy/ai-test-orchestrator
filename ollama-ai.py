@@ -2,6 +2,11 @@ import ollama
 import re
 import os
 import string
+import json
+
+# Load template from external JSON file
+with open('prompt_template.json', 'r') as file:
+    PROMPT_TEMPLATE = json.load(file)['template']
 
 # Adding different models. 
 # Alternatively, you can use "glm-5.1:cloud", "qwen3.5:cloud", etc for a more code-focused models.

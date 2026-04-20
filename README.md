@@ -76,6 +76,24 @@ The orchestrator now uses `rich` for enhanced terminal output, including tables 
 ### Refactoring to POM
 After validation, the orchestrator automatically refactors tests to use Page Object Models (POMs). The refactored tests are stored in the `pom/` directory.
 
+## HTML Report
+
+Playwright generates an HTML report for test results, providing a detailed view of test execution, including passed and failed tests, screenshots, and logs. To view the report, run:
+```bash
+npx playwright show-report reports/html-report
+```
+Ensure that the `reports/html-report` directory is accessible after running the tests.
+
+## External Prompt Template
+
+The `ollama-ai.py` script uses a dynamic prompt template stored in an external JSON file. This allows for easy customization and reuse of prompt configurations. The JSON file should be structured as follows:
+```json
+{
+  "PROMPT_TEMPLATE": "Your dynamic prompt here with placeholders."
+}
+```
+Update the file to include your desired prompt logic. The script dynamically loads this template at runtime, ensuring flexibility and modularity.
+
 ## Project Structure
 ```bash
 - `orchestrator.py`: The brain of the project. Manages the execution flow.
