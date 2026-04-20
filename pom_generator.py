@@ -13,12 +13,15 @@ def extract_selectors(code):
     patterns = [
         r"page\.fill\(['\"](.*?)['\"]",
         r"page\.click\(['\"](.*?)['\"]",
-        r"locator\(['\"](.*?)['\"]"
+        r"locator\(['\"](.*?)['\"]",
+        r"page\.locator\(['\"](.*?)['\"]",
+        r"page\.locator\((.*?)\)\.click\(\)",
+        r"page\.locator\((.*?)\)\.fill\((.*?)\)"
     ]
 
     for pattern in patterns:
         matches = re.findall(pattern, code)
-        selectors.update(matches)
+        selectors.update(matches if isinstance(matches, list) else [matches])
 
     return list(selectors)
 
@@ -80,3 +83,17 @@ def run_pom_generation():
         f.write(pom_code)
 
     print(f"POM generated at: {OUTPUT_PATH}")
+
+def inject_pom_into_test(test_path, pom_path):
+    """
+    Replace direct page.fill and page.click calls with POM methods in the test file.
+    """
+    with open(test_path, 'r') as test_file:
+        test_code = test_file.read()
+
+    # Replace direct calls with POM methods
+    test_code = re.sub(r"page\.fill\(['\"](.*?)['\"], ['\"](.*?)['\"]\)", r"loginPage.\1.fill(\2)", test_code)
+    test_code = re.sub(r"page\.click\(['\"](.*?)['\"]\)", r"loginPage.\1.click()", test_code)
+
+    with open(test_path, 'w') as test_file:
+        test_file.write(test_code)
