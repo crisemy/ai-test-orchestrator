@@ -42,23 +42,28 @@ def normalize_code(code: str) -> str:
     # fix sintaxis rota
     code = code.replace("await const", "const")
 
-    # URLs inválidas → forzar target REAL
-    code = code.replace(
-        "http://example.com/login",
-        "https://the-internet.herokuapp.com/login"
-    )
-    code = code.replace(
-        "http://your-website.com/login",
-        "https://the-internet.herokuapp.com/login"
+    # URLs inválidas → forzar target REAL (ui-testing-lab)
+    code = re.sub(
+        r"https?://[^\s\"']*(?:login|example|your-website)[^\s\"']*",
+        "http://localhost:3000/playwright-ui-testing-lab.html",
+        code
     )
 
-    # selectores incorrectos → FIX HARD
-    code = code.replace("#login", 'button[type="submit"]')
+    # selectores incorrectos comunes → FIX HARD (ui-testing-lab)
+    # Usar regex con negative lookbehind para no romper #login-username/password
+    code = re.sub(r"(?<!login-)#username", "#login-username", code)
+    code = re.sub(r"(?<!login-)#password", "#login-password", code)
+    code = re.sub(r"#login([^\"'\w-])", r"#login-btn\1", code)
+
+    # assertions con texto genérico → corregir a ui-testing-lab
+    code = code.replace("text=Dashboard", "#login-result")
+    code = code.replace("text=Invalid", "#login-alert .alert-error")
+    code = code.replace("text=Required", "#login-result")
 
     # assertions basura → reemplazo total
     code = re.sub(
         r"await expect\(.*?\)\.toBeVisible\(\);",
-        "await expect(page.locator('#flash')).toBeVisible();",
+        "await expect(page.locator('#login-alert .alert-error')).toBeVisible();",
         code
     )
 
@@ -67,6 +72,16 @@ def normalize_code(code: str) -> str:
         ".toHaveText(",
         ".toContainText("
     )
+
+    # navegación a sección login (si falta)
+    if "text=Form Authentication" not in code and "#section-login" not in code:
+        code = re.sub(
+            r"(await page\.goto\([^)]+\);)",
+            r"\1\n  await page.click('text=Form Authentication');",
+            code
+        )
+
+    return code
 
     return code
 

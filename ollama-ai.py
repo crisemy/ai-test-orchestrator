@@ -19,7 +19,9 @@ OUTPUT_FILE = "generated-tests/login.spec.ts"
 # -------------------------
 PROMPT_TEMPLATE = string.Template(
     """
-    Generate VALID Playwright test code in TypeScript.
+    Generate VALID Playwright test code in TypeScript for the UI Testing Lab app.
+
+    The app runs at $url and has a login form at section-login.
 
     STRICT:
     - Output ONLY TypeScript
@@ -31,27 +33,27 @@ PROMPT_TEMPLATE = string.Template(
 
     test('Successful login', async ({ page }) => {
       await page.goto('$url');
-      await page.fill('#username', 'user');
-      await page.fill('#password', 'pass');
-      await page.click('#login');
-
-      await expect(page.locator('text=Dashboard')).toBeVisible();
+      await page.click('text=Form Authentication');
+      await page.fill('#login-username', 'tomsmith');
+      await page.fill('#login-password', 'SuperSecretPassword!');
+      await page.click('#login-btn');
+      await expect(page.locator('#login-alert .alert-success')).toBeVisible();
     });
 
     test('Invalid login', async ({ page }) => {
       await page.goto('$url');
-      await page.fill('#username', 'invalid');
-      await page.fill('#password', 'wrong');
-      await page.click('#login');
-
-      await expect(page.locator('text=Invalid')).toBeVisible();
+      await page.click('text=Form Authentication');
+      await page.fill('#login-username', 'invalid');
+      await page.fill('#login-password', 'wrong');
+      await page.click('#login-btn');
+      await expect(page.locator('#login-alert .alert-error')).toBeVisible();
     });
 
     test('Empty fields', async ({ page }) => {
       await page.goto('$url');
-      await page.click('#login');
-
-      await expect(page.locator('text=Required')).toBeVisible();
+      await page.click('text=Form Authentication');
+      await page.click('#login-btn');
+      await expect(page.locator('#login-result')).toContainText('missing credentials');
     });
 
     Do not change structure.
@@ -96,25 +98,28 @@ def fallback_code():
     return """import { test, expect } from '@playwright/test';
 
 test('Successful login', async ({ page }) => {
-  await page.goto('http://example.com/login');
-  await page.fill('#username', 'user');
-  await page.fill('#password', 'pass');
-  await page.click('#login');
-  await expect(page.locator('text=Dashboard')).toBeVisible();
+  await page.goto('http://localhost:3000/playwright-ui-testing-lab.html');
+  await page.click('text=Form Authentication');
+  await page.fill('#login-username', 'tomsmith');
+  await page.fill('#login-password', 'SuperSecretPassword!');
+  await page.click('#login-btn');
+  await expect(page.locator('#login-alert .alert-success')).toBeVisible();
 });
 
 test('Invalid login', async ({ page }) => {
-  await page.goto('http://example.com/login');
-  await page.fill('#username', 'invalid');
-  await page.fill('#password', 'wrong');
-  await page.click('#login');
-  await expect(page.locator('text=Invalid')).toBeVisible();
+  await page.goto('http://localhost:3000/playwright-ui-testing-lab.html');
+  await page.click('text=Form Authentication');
+  await page.fill('#login-username', 'invalid');
+  await page.fill('#login-password', 'wrong');
+  await page.click('#login-btn');
+  await expect(page.locator('#login-alert .alert-error')).toBeVisible();
 });
 
 test('Empty fields', async ({ page }) => {
-  await page.goto('http://example.com/login');
-  await page.click('#login');
-  await expect(page.locator('text=Required')).toBeVisible();
+  await page.goto('http://localhost:3000/playwright-ui-testing-lab.html');
+  await page.click('text=Form Authentication');
+  await page.click('#login-btn');
+  await expect(page.locator('#login-result')).toContainText('missing credentials');
 });"""
 
 # -------------------------

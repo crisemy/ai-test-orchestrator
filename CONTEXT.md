@@ -36,7 +36,8 @@ ai-test-orchestrator/
 ├── CONTEXT.md                    # Este archivo
 ├── package.json                  # DevDependency: @playwright/test
 ├── package-lock.json
-├── playwright.config.js          # HTML reporter → reports/html-report
+├── playwright.config.js          # HTML reporter + webServer ui-testing-lab
+├── ui-testing-lab/               # App local de prueba (SPA con 36 scenarios)
 ├── prompt_template.json          # Prompt externalizado para el LLM
 ├── requirements.txt              # requests, pydantic, rich, python-dotenv, ollama
 │
@@ -86,7 +87,7 @@ Entry point. Funciones clave:
 - `run_pom_agent()` — llama a `pom_generator`
 - `main()` — orquesta el flujo completo
 
-### `ollama-ai.py` (191 líneas)
+### `ollama-ai.py` (195 líneas)
 Interfaz con el LLM local:
 - `generate_tests(url)` — hasta 3 intentos, temperatura 0.2, fallback hardcoded
 - `extract_code(text)` — extrae TypeScript/JS de bloques markdown
@@ -114,8 +115,8 @@ Template de prompt externalizado con instrucciones estrictas de generación.
 ## Comandos Útiles
 
 ```bash
-# Ejecutar pipeline completo
-python orchestrator.py --url "https://the-internet.herokuapp.com/login" --feature "Login Page"
+# Ejecutar pipeline completo (usa ui-testing-lab local por defecto)
+python orchestrator.py --url "http://localhost:3000/playwright-ui-testing-lab.html" --feature "Login Page"
 
 # Especificar modelo y engine
 python orchestrator.py --url "..." --feature "..." --model "qwen2.5-coder:7b" --engine ollama
@@ -123,7 +124,7 @@ python orchestrator.py --url "..." --feature "..." --model "qwen2.5-coder:7b" --
 # Ejecutar solo generación de tests
 python ollama-ai.py
 
-# Ejecutar tests manualmente
+# Ejecutar tests con servidor automático (webServer en playwright.config.js)
 npx playwright test
 
 # Generar POM standalone

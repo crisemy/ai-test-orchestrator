@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Testing Lab | Playwright Practice</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script>function brokenImage(img,label){img.style.display='none';img.parentElement.innerHTML='<div style="font-size:2rem;">\u274c<br><span style="font-size:0.75rem;">'+label+'</span></div>';}</script>
+</head>
+<body>
+    <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="flex items-center gap-3">
+                <div style="width:32px;height:32px;background:var(--accent-blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🧪</div>
+                <div style="cursor:pointer;" onclick="navigate('home')">
+                    <div style="font-weight:700;font-size:0.95rem;">UI Testing Lab</div>
+                    <div style="font-size:0.75rem;color:var(--text-secondary);">Playwright Practice</div>
+                </div>
+            </div>
+        </div>
+        <div style="padding:8px 0;">
+            <div class="sidebar-link active" data-section="home" onclick="navigate('home')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                Home
+            </div>
+            <div style="padding:8px 20px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;">Forms & Inputs</div>
+            <div class="sidebar-link" data-section="login" onclick="navigate('login')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Form Authentication
+            </div>
+            <div class="sidebar-link" data-section="checkboxes" onclick="navigate('checkboxes')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                Checkboxes
+            </div>
+            <div class="sidebar-link" data-section="dropdown" onclick="navigate('dropdown')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                Dropdown
+            </div>
+            <div class="sidebar-link" data-section="inputs" onclick="navigate('inputs')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+                Inputs
+            </div>
+            <div class="sidebar-link" data-section="file-upload" onclick="navigate('file-upload')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                File Upload
+            </div>
+            <div class="sidebar-link" data-section="file-download" onclick="navigate('file-download')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                File Download
+            </div>
+            <div class="sidebar-link" data-section="forgot-password" onclick="navigate('forgot-password')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><circle cx="12" cy="16" r="1"/></svg>
+                Forgot Password
+            </div>
+            <div class="sidebar-link" data-section="wysiwyg" onclick="navigate('wysiwyg')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                WYSIWYG Editor
+            </div>
+            <div style="padding:8px 20px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;">Dynamic Content</div>
+            <div class="sidebar-link" data-section="dynamic-controls" onclick="navigate('dynamic-controls')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Dynamic Controls
+            </div>
+            <div class="sidebar-link" data-section="dynamic-loading" onclick="navigate('dynamic-loading')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Dynamic Loading
+            </div>
+            <div class="sidebar-link" data-section="dynamic-content" onclick="navigate('dynamic-content')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                Dynamic Content
+            </div>
+            <div class="sidebar-link" data-section="add-remove" onclick="navigate('add-remove')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add/Remove Elements
+            </div>
+            <div class="sidebar-link" data-section="disappearing" onclick="navigate('disappearing')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                Disappearing Elements
+            </div>
+            <div class="sidebar-link" data-section="shifting" onclick="navigate('shifting')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+                Shifting Content
+            </div>
+            <div class="sidebar-link" data-section="infinite-scroll" onclick="navigate('infinite-scroll')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                Infinite Scroll
+            </div>
+            <div style="padding:8px 20px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;">Interactions</div>
+            <div class="sidebar-link" data-section="alerts" onclick="navigate('alerts')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                JavaScript Alerts
+            </div>
+            <div class="sidebar-link" data-section="keypresses" onclick="navigate('keypresses')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/></svg>
+                Key Presses
+            </div>
+            <div class="sidebar-link" data-section="hovers" onclick="navigate('hovers')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
+                Hovers
+            </div>
+            <div class="sidebar-link" data-section="drag-drop" onclick="navigate('drag-drop')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                Drag and Drop
+            </div>
+            <div class="sidebar-link" data-section="slider" onclick="navigate('slider')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+                Horizontal Slider
+            </div>
+            <div class="sidebar-link" data-section="context-menu" onclick="navigate('context-menu')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                Context Menu
+            </div>
+            <div class="sidebar-link" data-section="multiple-windows" onclick="navigate('multiple-windows')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                Multiple Windows
+            </div>
+            <div style="padding:8px 20px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;">Tables & Data</div>
+            <div class="sidebar-link" data-section="tables" onclick="navigate('tables')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                Sortable Data Tables
+            </div>
+            <div class="sidebar-link" data-section="data-tables" onclick="navigate('data-tables')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Data Tables
+            </div>
+            <div style="padding:8px 20px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;">Advanced</div>
+            <div class="sidebar-link" data-section="notifications" onclick="navigate('notifications')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Notifications
+            </div>
+            <div class="sidebar-link" data-section="status-codes" onclick="navigate('status-codes')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                Status Codes
+            </div>
+            <div class="sidebar-link" data-section="shadow-dom" onclick="navigate('shadow-dom')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                Shadow DOM
+            </div>
+            <div class="sidebar-link" data-section="frames" onclick="navigate('frames')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+                Nested Frames
+            </div>
+            <div class="sidebar-link" data-section="floating-menu" onclick="navigate('floating-menu')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                Floating Menu
+            </div>
+            <div class="sidebar-link" data-section="entry-ad" onclick="navigate('entry-ad')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                Entry Ad
+            </div>
+            <div class="sidebar-link" data-section="exit-intent" onclick="navigate('exit-intent')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Exit Intent
+            </div>
+            <div class="sidebar-link" data-section="broken-images" onclick="navigate('broken-images')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Broken Images
+            </div>
+            <div class="sidebar-link" data-section="redirect" onclick="navigate('redirect')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Redirect Link
+            </div>
+            <div class="sidebar-link" data-section="typos" onclick="navigate('typos')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Typos
+            </div>
+            <div class="sidebar-link" data-section="challenging-dom" onclick="navigate('challenging-dom')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                Challenging DOM
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="flex items-center gap-3">
+                <span class="badge badge-blue" id="section-badge" style="cursor:pointer;" onclick="navigate('home')">Home</span>
+                <span style="font-size:0.8rem;color:var(--text-secondary);" id="section-path">/home</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span style="font-size:0.8rem;color:var(--text-secondary);">v1.0.0</span>
+                <a href="https://github.com/crisemy" target="_blank" class="btn" style="padding:6px 12px;font-size:0.8rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    @crisemy
+                </a>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <!-- HOME -->
+            <div class="test-section active" id="section-home">
+                <div class="section-header">
+                    <h1>🧪 UI Testing Lab</h1>
+                    <p>A comprehensive playground for practicing Playwright UI automation. Each section below replicates common web UI patterns found in real-world applications.</p>
+                    <div class="tag-list mt-4">
+                        <span class="tag">Playwright</span>
+                        <span class="tag">UI Automation</span>
+                        <span class="tag">Testing</span>
+                        <span class="tag">30+ Scenarios</span>
+                        <span class="tag">E2E Testing</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Quick Stats</div>
+                    <div class="grid-2 mt-3">
+                        <div class="flex-center flex-col" style="padding:16px;background:var(--bg-primary);border-radius:8px;">
+                            <div style="font-size:2rem;font-weight:700;color:var(--accent-blue);">30+</div>
+                            <div style="font-size:0.85rem;color:var(--text-secondary);">Test Scenarios</div>
+                        </div>
+                        <div class="flex-center flex-col" style="padding:16px;background:var(--bg-primary);border-radius:8px;">
+                            <div style="font-size:2rem;font-weight:700;color:var(--accent-green);">100%</div>
+                            <div style="font-size:0.85rem;color:var(--text-secondary);">Interactive</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Categories</div>
+                    <div class="grid-2 mt-3">
+                        <div class="btn" style="width:100%;justify-content:flex-start;cursor:pointer;" onclick="navigate('login')">
+                            <span style="margin-right:8px;">📝</span> Forms & Inputs (8)
+                        </div>
+                        <div class="btn" style="width:100%;justify-content:flex-start;cursor:pointer;" onclick="navigate('dynamic-controls')">
+                            <span style="margin-right:8px;">⚡</span> Dynamic Content (6)
+                        </div>
+                        <div class="btn" style="width:100%;justify-content:flex-start;cursor:pointer;" onclick="navigate('alerts')">
+                            <span style="margin-right:8px;">🖱️</span> Interactions (8)
+                        </div>
+                        <div class="btn" style="width:100%;justify-content:flex-start;cursor:pointer;" onclick="navigate('tables')">
+                            <span style="margin-right:8px;">📊</span> Tables & Data (2)
+                        </div>
+                        <div class="btn" style="width:100%;justify-content:flex-start;cursor:pointer;" onclick="navigate('notifications')">
+                            <span style="margin-right:8px;">🔮</span> Advanced (7)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORM AUTHENTICATION -->
+            <div class="test-section" id="section-login">
+                <div class="section-header">
+                    <h1>Form Authentication</h1>
+                    <p>Test login form with validation, error states, and success feedback.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Login</div>
+                    <div class="card-desc">Use <span class="badge badge-green">tomsmith</span> / <span class="badge badge-green">SuperSecretPassword!</span></div>
+                    <div id="login-alert"></div>
+                    <div class="form-group">
+                        <label class="label">Username</label>
+                        <input type="text" class="input-field" id="login-username" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Password</label>
+                        <input type="password" class="input-field" id="login-password" placeholder="Enter password">
+                    </div>
+                    <button class="btn btn-primary" onclick="handleLogin()" id="login-btn">Login</button>
+                    <div class="result-box mt-3" id="login-result">Awaiting login...</div>
+                </div>
+            </div>
+
+            <!-- CHECKBOXES -->
+            <div class="test-section" id="section-checkboxes">
+                <div class="section-header">
+                    <h1>Checkboxes</h1>
+                    <p>Test checkbox toggling and state management.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Toggle Checkboxes</div>
+                    <div class="mt-3">
+                        <div class="flex items-center gap-3 mb-3">
+                            <input type="checkbox" class="checkbox-custom" id="cb-1">
+                            <label for="cb-1" style="cursor:pointer;">Checkbox 1</label>
+                            <span class="badge badge-green" id="cb-1-status" style="display:none;">checked</span>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <input type="checkbox" class="checkbox-custom" id="cb-2" checked>
+                            <label for="cb-2" style="cursor:pointer;">Checkbox 2</label>
+                            <span class="badge badge-green" id="cb-2-status">checked</span>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <input type="checkbox" class="checkbox-custom" id="cb-3">
+                            <label for="cb-3" style="cursor:pointer;">Checkbox 3</label>
+                            <span class="badge badge-green" id="cb-3-status" style="display:none;">checked</span>
+                        </div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <input type="checkbox" class="checkbox-custom" id="cb-4">
+                            <label for="cb-4" style="cursor:pointer;">Checkbox 4</label>
+                            <span class="badge badge-green" id="cb-4-status" style="display:none;">checked</span>
+                        </div>
+                    </div>
+                    <button class="btn mt-3" onclick="selectAllCheckboxes()">Select All</button>
+                    <button class="btn btn-danger mt-3" onclick="deselectAllCheckboxes()">Deselect All</button>
+                    <div class="result-box mt-3" id="checkbox-result">Select checkboxes to see state...</div>
+                </div>
+            </div>
+
+            <!-- DROPDOWN -->
+            <div class="test-section" id="section-dropdown">
+                <div class="section-header">
+                    <h1>Dropdown</h1>
+                    <p>Test dropdown selection and option handling.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Select an Option</div>
+                    <div class="form-group mt-3">
+                        <label class="label">Fruits</label>
+                        <select class="select-field" id="dropdown-select" onchange="handleDropdownChange()">
+                            <option value="">--Please select an option--</option>
+                            <option value="1">Apple</option>
+                            <option value="2">Banana</option>
+                            <option value="3">Cherry</option>
+                            <option value="4">Dragonfruit</option>
+                            <option value="5">Elderberry</option>
+                        </select>
+                    </div>
+                    <div class="result-box mt-3" id="dropdown-result">No selection made...</div>
+                </div>
+            </div>
+
+            <!-- INPUTS -->
+            <div class="test-section" id="section-inputs">
+                <div class="section-header">
+                    <h1>Inputs</h1>
+                    <p>Test various input types and validation.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Number Input</div>
+                    <div class="form-group mt-3">
+                        <label class="label">Enter a number</label>
+                        <input type="number" class="input-field" id="number-input" placeholder="Type a number" oninput="handleInputChange()">
+                    </div>
+                    <div class="result-box" id="input-result">Awaiting input...</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Text Input</div>
+                    <div class="form-group mt-3">
+                        <label class="label">Enter text</label>
+                        <input type="text" class="input-field" id="text-input" placeholder="Type some text" oninput="handleTextInputChange()">
+                    </div>
+                    <div class="result-box" id="text-input-result">Awaiting input...</div>
+                </div>
+            </div>
+
+            <!-- FILE UPLOAD -->
+            <div class="test-section" id="section-file-upload">
+                <div class="section-header">
+                    <h1>File Upload</h1>
+                    <p>Test file upload with drag & drop and click-to-browse.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Upload a File</div>
+                    <div class="drop-zone mt-3" id="upload-zone" onclick="document.getElementById('file-input').click()">
+                        <div class="upload-icon">📁</div>
+                        <div>Drag & drop files here or click to browse</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">Supports all file types</div>
+                    </div>
+                    <input type="file" id="file-input" style="display:none" onchange="handleFileUpload(this)">
+                    <div class="result-box mt-3" id="upload-result">No file uploaded...</div>
+                </div>
+            </div>
+
+            <!-- FILE DOWNLOAD -->
+            <div class="test-section" id="section-file-download">
+                <div class="section-header">
+                    <h1>File Download</h1>
+                    <p>Test file download functionality.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Available Files</div>
+                    <div class="mt-3">
+                        <a href="#" class="btn" onclick="triggerDownload('sample.txt', 'This is a sample text file for testing downloads.\n\nLine 2\nLine 3'); return false;">
+                            📄 sample.txt
+                        </a>
+                        <a href="#" class="btn ml-2" onclick="triggerDownload('data.csv', 'Name,Age,City\nAlice,30,NYC\nBob,25,LA\nCharlie,35,Chicago'); return false;">
+                            📊 data.csv
+                        </a>
+                        <a href="#" class="btn ml-2" onclick="triggerDownload('config.json', '{\n  &quot;app&quot;: &quot;UI Testing Lab&quot;,\n  &quot;version&quot;: &quot;1.0.0&quot;\n}'); return false;">
+                            ⚙️ config.json
+                        </a>
+                    </div>
+                    <div class="result-box mt-3" id="download-result">No downloads initiated...</div>
+                </div>
+            </div>
+
+            <!-- FORGOT PASSWORD -->
+            <div class="test-section" id="section-forgot-password">
+                <div class="section-header">
+                    <h1>Forgot Password</h1>
+                    <p>Test password reset form with email validation.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Reset Password</div>
+                    <div id="forgot-alert"></div>
+                    <div class="form-group mt-3">
+                        <label class="label">E-mail</label>
+                        <input type="email" class="input-field" id="forgot-email" placeholder="Enter your email">
+                    </div>
+                    <button class="btn btn-primary" onclick="handleForgotPassword()">Retrieve Password</button>
+                    <div class="result-box mt-3" id="forgot-result">Awaiting email submission...</div>
+                </div>
+            </div>
+
+            <!-- WYSIWYG EDITOR -->
+            <div class="test-section" id="section-wysiwyg">
+                <div class="section-header">
+                    <h1>WYSIWYG Editor</h1>
+                    <p>Test rich text editor interactions.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Rich Text Editor</div>
+                    <div class="wysiwyg-toolbar mt-3">
+                        <button onclick="execCmd('bold')" title="Bold"><b>B</b></button>
+                        <button onclick="execCmd('italic')" title="Italic"><i>I</i></button>
+                        <button onclick="execCmd('underline')" title="Underline"><u>U</u></button>
+                        <button onclick="execCmd('insertUnorderedList')" title="List">• List</button>
+                        <button onclick="execCmd('insertOrderedList')" title="Ordered List">1. List</button>
+                        <button onclick="execCmd('justifyLeft')" title="Align Left">⬅</button>
+                        <button onclick="execCmd('justifyCenter')" title="Align Center">⬛</button>
+                        <button onclick="execCmd('justifyRight')" title="Align Right">➡</button>
+                    </div>
+                    <div class="wysiwyg-content" contenteditable="true" id="wysiwyg-editor">
+                        <p>Edit this content to test the rich text editor...</p>
+                    </div>
+                    <div class="result-box mt-3" id="wysiwyg-result">Editor content will appear here...</div>
+                    <button class="btn mt-3" onclick="getWysiwygContent()">Get Content</button>
+                </div>
+            </div>
+
+            <!-- DYNAMIC CONTROLS -->
+            <div class="test-section" id="section-dynamic-controls">
+                <div class="section-header">
+                    <h1>Dynamic Controls</h1>
+                    <p>Test enabling/disabling and adding/removing elements dynamically.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Enable / Disable</div>
+                    <div class="mt-3 flex items-center gap-3">
+                        <input type="checkbox" class="checkbox-custom" id="enable-checkbox" onchange="toggleRemoveButton()">
+                        <label for="enable-checkbox" style="cursor:pointer;">Enable Button</label>
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-danger" id="remove-btn" disabled onclick="handleRemoveElement()">Remove</button>
+                    </div>
+                    <div class="result-box mt-3" id="dynamic-controls-result">Toggle the checkbox to enable/disable the Remove button...</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Add Element</div>
+                    <div class="mt-3">
+                        <button class="btn btn-primary" onclick="addDynamicElement()">Add Element</button>
+                    </div>
+                    <div id="dynamic-elements-container" class="mt-3"></div>
+                </div>
+            </div>
+
+            <!-- DYNAMIC LOADING -->
+            <div class="test-section" id="section-dynamic-loading">
+                <div class="section-header">
+                    <h1>Dynamic Loading</h1>
+                    <p>Test loading states and async content rendering.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Start / Stop</div>
+                    <button class="btn btn-primary mt-3" onclick="startLoading()">Start Loading</button>
+                    <div id="loading-container" class="mt-3" style="display:none;">
+                        <div class="flex-center flex-col" style="padding:32px;">
+                            <div class="spinner mb-3"></div>
+                            <div class="loading-bar" style="width:300px;"><div class="loading-bar-fill"></div></div>
+                            <div style="color:var(--text-secondary);font-size:0.85rem;">Loading content...</div>
+                        </div>
+                    </div>
+                    <div id="loading-result" class="result-box mt-3" style="display:none;"></div>
+                </div>
+            </div>
+
+            <!-- DYNAMIC CONTENT -->
+            <div class="test-section" id="section-dynamic-content">
+                <div class="section-header">
+                    <h1>Dynamic Content</h1>
+                    <p>Test randomly generated content on page load.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Random Content</div>
+                    <button class="btn btn-primary mt-3" onclick="loadDynamicContent()">Load New Content</button>
+                    <div id="dynamic-content-container" class="mt-3"></div>
+                </div>
+            </div>
+
+            <!-- ADD/REMOVE ELEMENTS -->
+            <div class="test-section" id="section-add-remove">
+                <div class="section-header">
+                    <h1>Add/Remove Elements</h1>
+                    <p>Test dynamic element creation and deletion.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Element List</div>
+                    <div class="flex gap-2 mt-3">
+                        <button class="btn btn-primary" onclick="addElement()">Add Element</button>
+                        <button class="btn btn-danger" onclick="removeElement()">Remove Element</button>
+                    </div>
+                    <div id="element-list" class="mt-3">
+                        <div class="shifting-box" data-element-id="0">Element 0 <button class="btn btn-danger" style="padding:2px 8px;font-size:0.75rem;margin-left:8px;" onclick="removeSpecificElement(0)">×</button></div>
+                    </div>
+                    <div class="result-box mt-3" id="add-remove-result">Elements: 1</div>
+                </div>
+            </div>
+
+            <!-- DISAPPEARING ELEMENTS -->
+            <div class="test-section" id="section-disappearing">
+                <div class="section-header">
+                    <h1>Disappearing Elements</h1>
+                    <p>Test elements that randomly disappear on click or timer.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Menu Links</div>
+                    <div id="disappearing-container" class="flex flex-wrap gap-2 mt-3">
+                        <button class="btn" onclick="disappear(this)">Home</button>
+                        <button class="btn" onclick="disappear(this)">About</button>
+                        <button class="btn" onclick="disappear(this)">Contact Us</button>
+                        <button class="btn" onclick="disappear(this)">Portfolio</button>
+                        <button class="btn" onclick="disappear(this)">Blog</button>
+                    </div>
+                    <button class="btn btn-primary mt-3" onclick="resetDisappearing()">Reset Elements</button>
+                    <div class="result-box mt-3" id="disappearing-result">Click buttons to make them disappear...</div>
+                </div>
+            </div>
+
+            <!-- SHIFTING CONTENT -->
+            <div class="test-section" id="section-shifting">
+                <div class="section-header">
+                    <h1>Shifting Content</h1>
+                    <p>Test content that shifts position on page reload.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Menu Items</div>
+                    <button class="btn btn-primary mt-3" onclick="shuffleContent()">Shuffle Content</button>
+                    <div id="shifting-container" class="mt-3">
+                        <div class="shifting-box">Home</div>
+                        <div class="shifting-box">About</div>
+                        <div class="shifting-box">Contact Us</div>
+                        <div class="shifting-box">Portfolio</div>
+                        <div class="shifting-box">Blog</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INFINITE SCROLL -->
+            <div class="test-section" id="section-infinite-scroll">
+                <div class="section-header">
+                    <h1>Infinite Scroll</h1>
+                    <p>Test lazy loading and infinite scroll patterns.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Scroll Down for More</div>
+                    <div id="infinite-scroll-container" style="max-height:400px;overflow-y:auto;">
+                        <!-- Items loaded dynamically -->
+                    </div>
+                    <div id="infinite-scroll-loader" class="flex-center mt-3" style="display:none;">
+                        <div class="spinner" style="width:24px;height:24px;border-width:2px;"></div>
+                    </div>
+                    <div class="result-box mt-3" id="infinite-result">Scroll down to load more items...</div>
+                </div>
+            </div>
+
+            <!-- JAVASCRIPT ALERTS -->
+            <div class="test-section" id="section-alerts">
+                <div class="section-header">
+                    <h1>JavaScript Alerts</h1>
+                    <p>Test alert, confirm, and prompt dialogs.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Alert Examples</div>
+                    <div class="flex gap-2 flex-wrap mt-3">
+                        <button class="btn" onclick="showAlert('alert')">Click for JS Alert</button>
+                        <button class="btn" onclick="showAlert('confirm')">Click for JS Confirm</button>
+                        <button class="btn" onclick="showAlert('prompt')">Click for JS Prompt</button>
+                    </div>
+                    <div class="result-box mt-3" id="alert-result">Click a button to trigger an alert...</div>
+                </div>
+            </div>
+
+            <!-- KEY PRESSES -->
+            <div class="test-section" id="section-keypresses">
+                <div class="section-header">
+                    <h1>Key Presses</h1>
+                    <p>Test keyboard event handling.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Press any key</div>
+                    <div class="flex-center flex-col mt-3" style="padding:40px;">
+                        <div class="key-display" id="key-display">_</div>
+                        <div style="color:var(--text-secondary);font-size:0.85rem;margin-top:12px;">Click here and press a key</div>
+                    </div>
+                    <div class="result-box mt-3" id="key-result">No keys pressed yet...</div>
+                </div>
+            </div>
+
+            <!-- HOVERS -->
+            <div class="test-section" id="section-hovers">
+                <div class="section-header">
+                    <h1>Hovers</h1>
+                    <p>Test hover tooltips and mouse events.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Hover over the images</div>
+                    <div class="mt-3 flex flex-wrap" id="hovers-container">
+                        <div class="hover-card">
+                            <div style="width:120px;height:120px;border-radius:8px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:2rem;">👤</div>
+                            <div class="tooltip">name: user1</div>
+                        </div>
+                        <div class="hover-card">
+                            <div style="width:120px;height:120px;border-radius:8px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:2rem;">👩</div>
+                            <div class="tooltip">name: user2</div>
+                        </div>
+                        <div class="hover-card">
+                            <div style="width:120px;height:120px;border-radius:8px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:2rem;">👨</div>
+                            <div class="tooltip">name: user3</div>
+                        </div>
+                    </div>
+                    <div class="result-box mt-3" id="hovers-result">Hover over a figure to see their name...</div>
+                </div>
+            </div>
+
+            <!-- DRAG AND DROP -->
+            <div class="test-section" id="section-drag-drop">
+                <div class="section-header">
+                    <h1>Drag and Drop</h1>
+                    <p>Test drag & drop interactions between columns.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Drag items between columns</div>
+                    <div class="grid-2 mt-3">
+                        <div>
+                            <div class="label mb-2">Column A</div>
+                            <div class="drop-column" id="col-a" ondrop="handleDrop(event, 'col-a')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                                <div class="drag-item" draggable="true" ondragstart="handleDragStart(event)" id="item-a">Item A</div>
+                                <div class="drag-item" draggable="true" ondragstart="handleDragStart(event)" id="item-b">Item B</div>
+                                <div class="drag-item" draggable="true" ondragstart="handleDragStart(event)" id="item-c">Item C</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="label mb-2">Column B</div>
+                            <div class="drop-column" id="col-b" ondrop="handleDrop(event, 'col-b')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                                <div class="drag-item" draggable="true" ondragstart="handleDragStart(event)" id="item-d">Item D</div>
+                                <div class="drag-item" draggable="true" ondragstart="handleDragStart(event)" id="item-e">Item E</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="result-box mt-3" id="drag-result">Drag items between columns...</div>
+                </div>
+            </div>
+
+            <!-- HORIZONTAL SLIDER -->
+            <div class="test-section" id="section-slider">
+                <div class="section-header">
+                    <h1>Horizontal Slider</h1>
+                    <p>Test range slider value changes.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Range: <span id="slider-display">5</span></div>
+                    <div class="slider-container mt-3">
+                        <span style="color:var(--text-secondary);">0</span>
+                        <input type="range" min="0" max="10" value="5" id="range-slider" oninput="handleSliderChange()">
+                        <span style="color:var(--text-secondary);">10</span>
+                    </div>
+                    <div class="result-box mt-3" id="slider-result">Current value: 5</div>
+                </div>
+            </div>
+
+            <!-- CONTEXT MENU -->
+            <div class="test-section" id="section-context-menu">
+                <div class="section-header">
+                    <h1>Context Menu</h1>
+                    <p>Test custom right-click context menu.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Right-click the box below</div>
+                    <div id="context-target" class="mt-3" style="padding:40px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;text-align:center;color:var(--text-secondary);cursor:context-menu;">
+                        Right-click anywhere in this area
+                    </div>
+                    <div class="result-box mt-3" id="context-result">Right-click to see context menu options...</div>
+                </div>
+            </div>
+
+            <!-- MULTIPLE WINDOWS -->
+            <div class="test-section" id="section-multiple-windows">
+                <div class="section-header">
+                    <h1>Multiple Windows</h1>
+                    <p>Test opening and managing multiple browser windows.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Click to open a new window</div>
+                    <div class="mt-3">
+                        <button class="btn btn-primary" onclick="openNewWindow('https://github.com/crisemy')">Open GitHub</button>
+                        <button class="btn ml-2" onclick="openNewWindow('https://the-internet.herokuapp.com')">Open the-internet</button>
+                    </div>
+                    <div class="result-box mt-3" id="windows-result">Click a button to open a new window...</div>
+                </div>
+            </div>
+
+            <!-- SORTABLE DATA TABLES -->
+            <div class="test-section" id="section-tables">
+                <div class="section-header">
+                    <h1>Sortable Data Tables</h1>
+                    <p>Test sorting functionality in data tables.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Employee Data</div>
+                    <div class="table-wrapper mt-3">
+                        <table id="sort-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortTable(0)">ID ↕</th>
+                                    <th onclick="sortTable(1)">Name ↕</th>
+                                    <th onclick="sortTable(2)">Email ↕</th>
+                                    <th onclick="sortTable(3)">Department ↕</th>
+                                    <th onclick="sortTable(4)">Status ↕</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sort-table-body">
+                                <tr><td>1</td><td>Alice Johnson</td><td>alice@example.com</td><td>Engineering</td><td><span class="badge badge-green">Active</span></td></tr>
+                                <tr><td>2</td><td>Bob Smith</td><td>bob@example.com</td><td>Marketing</td><td><span class="badge badge-green">Active</span></td></tr>
+                                <tr><td>3</td><td>Charlie Brown</td><td>charlie@example.com</td><td>Design</td><td><span class="badge badge-purple">On Leave</span></td></tr>
+                                <tr><td>4</td><td>Diana Prince</td><td>diana@example.com</td><td>Engineering</td><td><span class="badge badge-green">Active</span></td></tr>
+                                <tr><td>5</td><td>Eve Davis</td><td>eve@example.com</td><td>HR</td><td><span class="badge badge-red">Inactive</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="result-box mt-3" id="table-result">Click column headers to sort...</div>
+                </div>
+            </div>
+
+            <!-- DATA TABLES -->
+            <div class="test-section" id="section-data-tables">
+                <div class="section-header">
+                    <h1>Data Tables</h1>
+                    <p>Test table rendering and cell interactions.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Sample Data</div>
+                    <div class="table-wrapper mt-3">
+                        <table id="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Last Name</th>
+                                    <th>First Name</th>
+                                    <th>Email</th>
+                                    <th>Due</th>
+                                    <th>Web Site</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Smith</td><td>John</td><td>jsmith@email.com</td><td>$50.00</td><td>http://www.jsmith.com</td></tr>
+                                <tr><td>Bach</td><td>Frank</td><td>fbach@email.com</td><td>$51.00</td><td>http://www.frank.com</td></tr>
+                                <tr><td>Doe</td><td>Jason</td><td>jdoe@email.com</td><td>$100.00</td><td>http://www.jdoe.com</td></tr>
+                                <tr><td>Conway</td><td>Tim</td><td>tconway@email.com</td><td>$50.00</td><td>http://www.timconway.com</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTIFICATIONS -->
+            <div class="test-section" id="section-notifications">
+                <div class="section-header">
+                    <h1>Notification Messages</h1>
+                    <p>Test toast notification system.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Show Notifications</div>
+                    <div class="flex gap-2 flex-wrap mt-3">
+                        <button class="btn btn-success" onclick="showNotification('success', '✅ Action completed successfully!')">Success</button>
+                        <button class="btn btn-danger" onclick="showNotification('error', '❌ An error has occurred!')">Error</button>
+                        <button class="btn" style="border-color:var(--accent-orange);color:var(--accent-orange);" onclick="showNotification('warning', '⚠️ Please review your changes.')">Warning</button>
+                        <button class="btn" style="border-color:var(--accent-blue);color:var(--accent-blue);" onclick="showNotification('info', 'ℹ️ New update available.')">Info</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATUS CODES -->
+            <div class="test-section" id="section-status-codes">
+                <div class="section-header">
+                    <h1>Status Codes</h1>
+                    <p>Test HTTP status code handling.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Click a status code to simulate</div>
+                    <div class="flex flex-wrap mt-3">
+                        <div class="status-code-card code-2xx" onclick="showStatus(200)"><div class="status-code">200</div><div style="font-size:0.75rem;color:var(--text-secondary);">OK</div></div>
+                        <div class="status-code-card code-2xx" onclick="showStatus(201)"><div class="status-code">201</div><div style="font-size:0.75rem;color:var(--text-secondary);">Created</div></div>
+                        <div class="status-code-card code-3xx" onclick="showStatus(301)"><div class="status-code">301</div><div style="font-size:0.75rem;color:var(--text-secondary);">Moved</div></div>
+                        <div class="status-code-card code-3xx" onclick="showStatus(302)"><div class="status-code">302</div><div style="font-size:0.75rem;color:var(--text-secondary);">Found</div></div>
+                        <div class="status-code-card code-4xx" onclick="showStatus(400)"><div class="status-code">400</div><div style="font-size:0.75rem;color:var(--text-secondary);">Bad Request</div></div>
+                        <div class="status-code-card code-4xx" onclick="showStatus(401)"><div class="status-code">401</div><div style="font-size:0.75rem;color:var(--text-secondary);">Unauthorized</div></div>
+                        <div class="status-code-card code-4xx" onclick="showStatus(403)"><div class="status-code">403</div><div style="font-size:0.75rem;color:var(--text-secondary);">Forbidden</div></div>
+                        <div class="status-code-card code-4xx" onclick="showStatus(404)"><div class="status-code">404</div><div style="font-size:0.75rem;color:var(--text-secondary);">Not Found</div></div>
+                        <div class="status-code-card code-5xx" onclick="showStatus(500)"><div class="status-code">500</div><div style="font-size:0.75rem;color:var(--text-secondary);">Server Error</div></div>
+                        <div class="status-code-card code-5xx" onclick="showStatus(503)"><div class="status-code">503</div><div style="font-size:0.75rem;color:var(--text-secondary);">Unavailable</div></div>
+                    </div>
+                    <div id="status-result" class="result-box mt-3">Click a status code to see its meaning...</div>
+                </div>
+            </div>
+
+            <!-- SHADOW DOM -->
+            <div class="test-section" id="section-shadow-dom">
+                <div class="section-header">
+                    <h1>Shadow DOM</h1>
+                    <p>Test interacting with Shadow DOM elements.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Shadow Root Content</div>
+                    <div class="mt-3">
+                        <div id="shadow-host" style="border:2px solid var(--accent-purple);border-radius:8px;padding:4px;"></div>
+                    </div>
+                    <div class="result-box mt-3" id="shadow-result">Click the button inside the shadow DOM...</div>
+                    <button class="btn mt-3" onclick="interactShadowDOM()">Interact with Shadow DOM</button>
+                </div>
+            </div>
+
+            <!-- NESTED FRAMES -->
+            <div class="test-section" id="section-frames">
+                <div class="section-header">
+                    <h1>Nested Frames</h1>
+                    <p>Test iframe navigation and content access.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Frame Structure</div>
+                    <div class="iframe-container mt-3">
+                        <div style="padding:16px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);">
+                            <div style="font-size:0.8rem;color:var(--text-muted);">📦 Top Frame</div>
+                        </div>
+                        <div class="nested-frame">
+                            <div style="font-size:0.8rem;color:var(--accent-purple);margin-bottom:8px;">📦 Middle Frame</div>
+                            <div class="nested-frame" style="border-color:var(--accent-blue);">
+                                <div style="font-size:0.8rem;color:var(--accent-blue);margin-bottom:8px;">📦 Bottom Frame</div>
+                                <div style="padding:8px;background:var(--bg-primary);border-radius:4px;font-size:0.85rem;">
+                                    Content in the bottom frame
+                                </div>
+                            </div>
+                            <div class="nested-frame" style="border-color:var(--accent-cyan);">
+                                <div style="font-size:0.8rem;color:var(--accent-cyan);margin-bottom:8px;">📦 Right Frame</div>
+                                <div style="padding:8px;background:var(--bg-primary);border-radius:4px;font-size:0.85rem;">
+                                    Content in the right frame
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FLOATING MENU -->
+            <div class="test-section" id="section-floating-menu">
+                <div class="section-header">
+                    <h1>Floating Menu</h1>
+                    <p>Test sticky/floating navigation behavior.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Scroll down to see floating menu</div>
+                    <div id="floating-demo" style="max-height:500px;overflow-y:auto;position:relative;" class="mt-3">
+                        <div style="position:sticky;top:0;background:var(--accent-blue);color:#fff;padding:10px 16px;border-radius:8px;text-align:center;font-weight:600;z-index:10;margin-bottom:12px;">
+                            🧭 Floating Menu
+                        </div>
+                        <div style="padding:16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;">Section 1 - Keep scrolling...</div>
+                        <div style="padding:16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;">Section 2 - Almost there...</div>
+                        <div style="padding:16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;">Section 3 - The menu should be stuck...</div>
+                        <div style="padding:16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;">Section 4 - More content...</div>
+                        <div style="padding:16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;">Section 5 - Keep going...</div>
+                        <div style="padding:16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;">Section 6 - You're doing great!</div>
+                        <div style="padding:16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;">Section 7 - End of content</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ENTRY AD -->
+            <div class="test-section" id="section-entry-ad">
+                <div class="section-header">
+                    <h1>Entry Ad</h1>
+                    <p>Test modal popup that appears on page entry.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Trigger Entry Ad</div>
+                    <button class="btn btn-primary mt-3" onclick="showEntryAd()">Show Entry Ad</button>
+                    <div class="result-box mt-3" id="entry-ad-result">Click the button to trigger an entry ad modal...</div>
+                </div>
+            </div>
+
+            <!-- EXIT INTENT -->
+            <div class="test-section" id="section-exit-intent">
+                <div class="section-header">
+                    <h1>Exit Intent</h1>
+                    <p>Test modal that appears when mouse leaves the viewport.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Move mouse to top of browser</div>
+                    <p class="card-desc mt-3">Move your mouse cursor to the very top of the browser window to trigger the exit intent popup.</p>
+                    <button class="btn mt-3" onclick="showExitIntent()">Simulate Exit Intent</button>
+                    <div class="result-box mt-3" id="exit-result">Exit intent not triggered yet...</div>
+                </div>
+            </div>
+
+            <!-- BROKEN IMAGES -->
+            <div class="test-section" id="section-broken-images">
+                <div class="section-header">
+                    <h1>Broken Images</h1>
+                    <p>Test handling of broken/missing images.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Image Gallery</div>
+                    <div class="flex flex-wrap gap-3 mt-3">
+                        <div style="text-align:center;">
+                            <div style="width:150px;height:150px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                <img src="https://via.placeholder.com/150/2ea043/ffffff?text=Working" alt="Working image" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='❌'">
+                            </div>
+                            <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">Working Image</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="width:150px;height:150px;background:var(--bg-primary);border:1px solid var(--accent-red);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;" id="broken-img-container">
+                                <img src="broken-link.jpg" alt="Broken image" style="width:100%;height:100%;object-fit:cover;" onerror="brokenImage(this, 'Broken')">
+                            </div>
+                            <div style="font-size:0.75rem;color:var(--accent-red);margin-top:4px;">Broken Image</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="width:150px;height:150px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                <img src="not-found.png" alt="Another broken image" style="width:100%;height:100%;object-fit:cover;" onerror="brokenImage(this, 'Missing')">
+                            </div>
+                            <div style="font-size:0.75rem;color:var(--accent-red);margin-top:4px;">Missing Image</div>
+                        </div>
+                    </div>
+                    <div class="result-box mt-3" id="broken-result">Images loaded. Check console for 404 errors on broken images...</div>
+                </div>
+            </div>
+
+            <!-- REDIRECT LINK -->
+            <div class="test-section" id="section-redirect">
+                <div class="section-header">
+                    <h1>Redirect Link</h1>
+                    <p>Test link redirection behavior.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Click to Redirect</div>
+                    <div class="mt-3">
+                        <a href="#" class="btn" onclick="handleRedirect('https://github.com/crisemy'); return false;">Redirect to GitHub</a>
+                        <a href="#" class="btn ml-2" onclick="handleRedirect('https://the-internet.herokuapp.com'); return false;">Redirect to the-internet</a>
+                    </div>
+                    <div id="redirect-status" class="alert-box alert-info mt-3" style="display:none;">Redirecting in <span id="redirect-countdown">5</span> seconds...</div>
+                    <button class="btn mt-3" onclick="cancelRedirect()">Cancel Redirect</button>
+                    <div class="result-box mt-3" id="redirect-result">No redirect initiated...</div>
+                </div>
+            </div>
+
+            <!-- TYPOS -->
+            <div class="test-section" id="section-typos">
+                <div class="section-header">
+                    <h1>Typos</h1>
+                    <p>Test pages with intentional typos in text content.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Content with Typos</div>
+                    <div class="mt-3" id="typos-content" style="line-height:1.8;">
+                        <p>This is an exmaple of text with typos. The purpse of this page is to test how Playwright handles text content that contains intentional spelling erors.</p>
+                        <p>Some commn typos include: recieve, definatly, seperate, occurance, and enviroment. Notice how the words 'the' might be writen as 'teh' or 'adn' instead of 'and'.</p>
+                        <p>Playwright can use text contenet assertions to verify the presense of typos, or it can use regular expressons to match patterns in the text.</p>
+                    </div>
+                    <button class="btn mt-3" onclick="checkTypos()">Check for Typos</button>
+                    <div class="result-box mt-3" id="typos-result">Click to analyze text for typos...</div>
+                </div>
+            </div>
+
+            <!-- CHALLENGING DOM -->
+            <div class="test-section" id="section-challenging-dom">
+                <div class="section-header">
+                    <h1>Challenging DOM</h1>
+                    <p>Test complex DOM structures with dynamic class names and attributes.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Complex Table</div>
+                    <button class="btn btn-primary mt-3" onclick="loadChallengingDOM()">Load New Data</button>
+                    <div class="table-wrapper mt-3">
+                        <table id="challenging-table">
+                            <thead>
+                                <tr>
+                                    <th>Lorem</th>
+                                    <th>Ipsum</th>
+                                    <th>Dolor</th>
+                                    <th>Sit</th>
+                                    <th>Amet</th>
+                                    <th>Dic</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="challenging-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="result-box mt-3" id="challenging-result">Click "Load New Data" to populate the table...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
