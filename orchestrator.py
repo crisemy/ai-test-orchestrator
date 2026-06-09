@@ -9,7 +9,7 @@ from rich.table import Table
 # Initialize Rich Console
 console = Console()
 
-GENERATED_TEST_PATH = "generated-tests/login.spec.js"
+GENERATED_TEST_PATH = "generated-tests/login.spec.ts"
 
 # -------------------------
 # RUN AI AGENT

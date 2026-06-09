@@ -31,7 +31,7 @@ The `orchestrator.py` script manages the entire lifecycle:
 - **Model**: Pull the required model:
 
 ```bash
-  ollama pull qwen2.5-coder:7b
+  ollama pull qwen2.5-coder:7b # Or other models of your choice
 ```
 
 ## Getting Started

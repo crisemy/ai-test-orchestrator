@@ -12,22 +12,22 @@ with open('prompt_template.json', 'r') as file:
 # Alternatively, you can use "glm-5.1:cloud", "qwen3.5:cloud", etc for a more code-focused models.
 MODEL = 'qwen2.5-coder:7b'
 
-OUTPUT_FILE = "generated-tests/login.spec.js"
+OUTPUT_FILE = "generated-tests/login.spec.ts"
 
 # -------------------------
 # Dynamic Prompt Template
 # -------------------------
 PROMPT_TEMPLATE = string.Template(
     """
-    Generate VALID Playwright test code.
+    Generate VALID Playwright test code in TypeScript.
 
     STRICT:
-    - Output ONLY JavaScript
+    - Output ONLY TypeScript
     - NO explanations
     - NO comments
     - Use EXACTLY this structure
 
-    const { test, expect } = require('@playwright/test');
+    import { test, expect } from '@playwright/test';
 
     test('Successful login', async ({ page }) => {
       await page.goto('$url');
@@ -59,13 +59,12 @@ PROMPT_TEMPLATE = string.Template(
 )
 
 # -------------------------
-# Extract only JavaScript code block
+# Extract code block from LLM output
 # -------------------------
-def extract_js(text):
-    if "```javascript" in text:
-        return text.split("```javascript")[1].split("```")[0].strip()
-    elif "```" in text:
-        return text.split("```")[1].split("```")[0].strip()
+def extract_code(text):
+    for fence in ["```typescript", "```javascript", "```ts", "```js", "```"]:
+        if fence in text:
+            return text.split(fence)[1].split("```")[0].strip()
     return None
 
 # -------------------------
@@ -83,7 +82,7 @@ def is_valid_playwright(code):
         return False
 
     return (
-        "const { test, expect }" in code and
+        "import { test, expect }" in code and
         code.count("test(") >= 3 and
         "await page.goto" in code and
         "await expect" in code and
@@ -94,7 +93,7 @@ def is_valid_playwright(code):
 # Fallback code (safe baseline)
 # -------------------------
 def fallback_code():
-    return """const { test, expect } = require('@playwright/test');
+    return """import { test, expect } from '@playwright/test';
 
 test('Successful login', async ({ page }) => {
   await page.goto('http://example.com/login');
@@ -119,11 +118,11 @@ test('Empty fields', async ({ page }) => {
 });"""
 
 # -------------------------
-# Generate tests using LLM
+# Generate tests using LLM (TypeScript output)
 # -------------------------
 def generate_tests(url):
 
-    print("Generating Playwright tests...\n")
+    print("Generating Playwright tests (TypeScript)...\n")
 
     for attempt in range(3):
 
@@ -144,13 +143,13 @@ def generate_tests(url):
         print("\nRAW OUTPUT:\n")
         print(raw_output)
 
-        js_code = extract_js(raw_output)
+        code = extract_code(raw_output)
 
-        if not js_code:
-            print("No JavaScript block detected, retrying...")
+        if not code:
+            print("No code block detected, retrying...")
             continue
 
-        normalized = normalize_code(js_code)
+        normalized = normalize_code(code)
 
         print("\nNORMALIZED CODE:\n")
         print(normalized)
