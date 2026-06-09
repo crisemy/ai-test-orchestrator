@@ -7,3 +7,5 @@ __pycache__/
 node_modules/
 generated-tests/
 reports/
+ai-qa-core-framework/*
+IMPROVEMENT-PLAN.md
