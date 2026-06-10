@@ -16,3 +16,12 @@ test-results/
 ai-qa-core-framework/
 *.md
 .DS_Store
+tests/
+dashboard/
+experiments/
+red_team/
+ml/
+contracts/__pycache__/
+ci/
+*.spec.ts
+*.spec.tsx

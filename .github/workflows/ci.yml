@@ -32,6 +32,7 @@ jobs:
 
       - name: Verify module imports
         run: |
+          python -c "import config; print('config OK')"
           python -c "import orchestrator; print('orchestrator OK')"
           python -c "import ollama_ai; print('ollama_ai OK')"
           python -c "import cloud_ai; print('cloud_ai OK')"
@@ -44,7 +45,7 @@ jobs:
 
       - name: Verify Python syntax in all modules
         run: |
-          python -c "import ast; [ast.parse(open(f).read()) for f in ['orchestrator.py', 'ollama_ai.py', 'cloud_ai.py', 'pom_generator.py', 'persistence.py', 'kpi.py', 'failure_analysis.py']]; print('All syntax OK')"
+          python -c "import ast; [ast.parse(open(f).read()) for f in ['config.py', 'orchestrator.py', 'ollama_ai.py', 'cloud_ai.py', 'pom_generator.py', 'persistence.py', 'kpi.py', 'failure_analysis.py']]; print('All syntax OK')"
 
   test-playwright:
     name: Playwright execution (ui-testing-lab)
@@ -137,6 +138,18 @@ jobs:
 
       - name: Check POM TypeScript validity
         run: |
+          # Create a minimal test file for POM generation
+          mkdir -p generated-tests
+          cat > generated-tests/login.spec.ts << 'EOF'
+          import { test, expect } from '@playwright/test';
+          test('smoke', async ({ page }) => {
+            await page.goto('http://localhost:3000/playwright-ui-testing-lab.html');
+            await page.fill('#login-username', 'test');
+            await page.fill('#login-password', 'test');
+            await page.click('#login-btn');
+            await expect(page.locator('#login-result')).toBeVisible();
+          });
+          EOF
           python -c "
           import pom_generator
           pom_generator.run_pom_generation('login')

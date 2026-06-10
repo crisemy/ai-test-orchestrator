@@ -11,24 +11,19 @@ RUN apt-get update && apt-get install -y curl && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Install Python dependencies (layer cached independently)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright and browsers (chromium only for smaller size)
-RUN npm init -y && \
-    npm install @playwright/test@^${PLAYWRIGHT_VERSION} http-server@^14.1.1 && \
+# Copy package files first for npm layer caching
+COPY package.json package-lock.json* ./
+RUN npm ci && \
     npx playwright install --with-deps chromium
 
 # Copy application code
 COPY . .
 
-# Install TypeScript for tsc validation gate
-RUN npm install typescript
-
-# Expose ui-testing-lab port
 EXPOSE 3000
 
-# Default: show help
 ENTRYPOINT ["python", "orchestrator.py"]
 CMD ["--help"]

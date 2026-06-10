@@ -1,22 +1,12 @@
 import ollama
-import re
 import os
 import string
-import json
 
-# Load template from external JSON file
-with open('prompt_template.json', 'r') as file:
-    PROMPT_TEMPLATE = json.load(file)['template']
+from config import TARGET_URL
 
-# Adding different models. 
-# Alternatively, you can use "glm-5.1:cloud", "qwen3.5:cloud", etc for a more code-focused models.
+OUTPUT_FILE = "generated-tests/login.spec.ts"
 MODEL = 'qwen2.5-coder:7b'
 
-OUTPUT_FILE = "generated-tests/login.spec.ts"  # default, overridden by --feature arg
-
-# -------------------------
-# Dynamic Prompt Template
-# -------------------------
 PROMPT_TEMPLATE = string.Template(
     """
     Generate VALID Playwright test code in TypeScript for the UI Testing Lab app.
@@ -63,7 +53,7 @@ PROMPT_TEMPLATE = string.Template(
 # -------------------------
 # Extract code block from LLM output
 # -------------------------
-def extract_code(text):
+def extract_code(text: str) -> str | None:
     for fence in ["```typescript", "```javascript", "```ts", "```js", "```"]:
         if fence in text:
             return text.split(fence)[1].split("```")[0].strip()
@@ -72,60 +62,59 @@ def extract_code(text):
 # -------------------------
 # Normalize code (non-destructive)
 # -------------------------
-def normalize_code(code):
-    # Only trim whitespace, do not alter structure
+def normalize_code(code: str) -> str:
     return code.strip()
 
 # -------------------------
 # Validate Playwright code
 # -------------------------
-def is_valid_playwright(code):
+def is_valid_playwright(code: str | None) -> bool:
     if not code:
         return False
-
     return (
-        "import { test, expect }" in code and
-        code.count("test(") >= 3 and
-        "await page.goto" in code and
-        "await expect" in code and
-        code.count("{") == code.count("}")  # basic syntax sanity check
+        "import { test, expect }" in code
+        and code.count("test(") >= 3
+        and "await page.goto" in code
+        and "await expect" in code
+        and code.count("{") == code.count("}")
     )
 
 # -------------------------
 # Fallback code (safe baseline)
 # -------------------------
-def fallback_code():
-    return """import { test, expect } from '@playwright/test';
+def fallback_code() -> str:
+    url = TARGET_URL
+    return f"""import {{ test, expect }} from '@playwright/test';
 
-test('Successful login', async ({ page }) => {
-  await page.goto('http://localhost:3000/playwright-ui-testing-lab.html');
+test('Successful login', async ({{ page }}) => {{
+  await page.goto('{url}');
   await page.click('text=Form Authentication');
   await page.fill('#login-username', 'tomsmith');
   await page.fill('#login-password', 'SuperSecretPassword!');
   await page.click('#login-btn');
   await expect(page.locator('#login-alert .alert-success')).toBeVisible();
-});
+}});
 
-test('Invalid login', async ({ page }) => {
-  await page.goto('http://localhost:3000/playwright-ui-testing-lab.html');
+test('Invalid login', async ({{ page }}) => {{
+  await page.goto('{url}');
   await page.click('text=Form Authentication');
   await page.fill('#login-username', 'invalid');
   await page.fill('#login-password', 'wrong');
   await page.click('#login-btn');
   await expect(page.locator('#login-alert .alert-error')).toBeVisible();
-});
+}});
 
-test('Empty fields', async ({ page }) => {
-  await page.goto('http://localhost:3000/playwright-ui-testing-lab.html');
+test('Empty fields', async ({{ page }}) => {{
+  await page.goto('{url}');
   await page.click('text=Form Authentication');
   await page.click('#login-btn');
   await expect(page.locator('#login-result')).toContainText('missing credentials');
-});"""
+}});"""
 
 # -------------------------
 # Generate tests using LLM (TypeScript output)
 # -------------------------
-def generate_tests(url, feature="login", error_context=None):
+def generate_tests(url: str, feature: str = "login", error_context: str | None = None):
 
     print("Generating Playwright tests (TypeScript)...\n")
 
@@ -184,8 +173,7 @@ Please fix the test to avoid this error."""
 # -------------------------
 # Save file
 # -------------------------
-def save_file(code):
-
+def save_file(code: str) -> None:
     os.makedirs("generated-tests", exist_ok=True)
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:

@@ -5,7 +5,7 @@ import re
 # -------------------------
 # CLEAN SELECTOR → VALID TS IDENTIFIER
 # -------------------------
-def clean_selector_name(sel):
+def clean_selector_name(sel: str) -> str:
     name = sel
     # strip text= prefix
     name = re.sub(r'^text=', '', name)
@@ -27,8 +27,8 @@ def clean_selector_name(sel):
 # -------------------------
 # EXTRACT SELECTORS
 # -------------------------
-def extract_selectors(code):
-    selectors = set()
+def extract_selectors(code: str) -> list[str]:
+    selectors: set[str] = set()
 
     patterns = [
         r"page\.fill\(['\"](.*?)['\"]",
@@ -49,11 +49,11 @@ def extract_selectors(code):
 # -------------------------
 # GENERATE POM (DETERMINISTIC)
 # -------------------------
-def feature_class_name(feature):
+def feature_class_name(feature: str) -> str:
     words = feature.replace("-", " ").replace("_", " ").split()
     return "".join(w.capitalize() for w in words) + "Page"
 
-def generate_pom(selectors, feature="login"):
+def generate_pom(selectors: list[str], feature: str = "login") -> str:
     locators = []
     for sel in selectors:
         locators.append((clean_selector_name(sel), sel))
@@ -102,7 +102,7 @@ def generate_pom(selectors, feature="login"):
 # -------------------------
 # MAIN
 # -------------------------
-def run_pom_generation(feature="login"):
+def run_pom_generation(feature: str = "login") -> None:
     print("Generating POM (deterministic)...")
 
     test_path = f"generated-tests/{feature}.spec.ts"
@@ -129,17 +129,3 @@ def run_pom_generation(feature="login"):
         f.write(pom_code)
 
     print(f"POM generated at: {output_path}")
-
-def inject_pom_into_test(test_path, pom_path):
-    """
-    Replace direct page.fill and page.click calls with POM methods in the test file.
-    """
-    with open(test_path, 'r') as test_file:
-        test_code = test_file.read()
-
-    # Replace direct calls with POM methods
-    test_code = re.sub(r"page\.fill\(['\"](.*?)['\"], ['\"](.*?)['\"]\)", r"loginPage.\1.fill(\2)", test_code)
-    test_code = re.sub(r"page\.click\(['\"](.*?)['\"]\)", r"loginPage.\1.click()", test_code)
-
-    with open(test_path, 'w') as test_file:
-        test_file.write(test_code)

@@ -40,10 +40,10 @@ ai-test-orchestrator/
 ├── package-lock.json
 ├── playwright.config.js          # HTML reporter + webServer ui-testing-lab
 ├── ui-testing-lab/               # Local test app (SPA with 36 scenarios)
-├── prompt_template.json          # Externalized prompt for the LLM
-├── requirements.txt              # requests, pydantic, rich, python-dotenv, ollama
+├── requirements.txt              # requests, pydantic, rich, python-dotenv, ollama, anthropic, scikit-learn
 │
-├── orchestrator.py               # Pipeline orchestrator (router, normalizer, executor, cost metrics)
+├── config.py                     # Consolidated constants + env-var overrides + custom exception classes
+├── orchestrator.py               # Pipeline orchestrator (router, normalizer, executor, cost metrics, TS gate)
 ├── ollama_ai.py                  # Ollama interface for test generation (+ feedback loop)
 ├── cloud_ai.py                   # Anthropic Claude cloud engine (--engine cloud)
 ├── pom_generator.py              # Page Object Model generator (multi-feature, camelCase)
@@ -55,6 +55,14 @@ ai-test-orchestrator/
 ├── contracts/
 │   └── __init__.py               # Pydantic data contracts: ContractMetadata, ExecutionRecord, FailureRecord (Phase 0.1)
 │
+├── ci/
+│   └── smoke.spec.ts             # Deterministic Playwright smoke test for CI
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                # GitHub Actions CI (pytest, Playwright, POM validation, experiments)
+│       └── docker.yml            # GitHub Actions Docker registry push (ghcr.io)
+├── Dockerfile                    # Containerized runtime (Python 3.12 + Node.js 22 + Playwright)
+├── .dockerignore                 # Excludes dev artifacts from Docker builds
 ├── ai-qa-core-framework/         # External QA framework reference (skills, contracts, runbooks)
 ├── dashboard/
 │   └── app.py                    # Streamlit QA dashboard

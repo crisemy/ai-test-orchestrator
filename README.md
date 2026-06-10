@@ -231,22 +231,24 @@ npx playwright show-report reports/html-report
 
 Ensure that the `reports/html-report` directory is accessible after running the tests.
 
-## External Prompt Template
+## Configuration
 
-The `ollama_ai.py` script uses a dynamic prompt template stored in an external JSON file. This allows for easy customization and reuse of prompt configurations. The JSON file should be structured as follows:
+Hardcoded constants (cost thresholds, rate limits, retries, URL defaults) are consolidated in `config.py` and overridable via environment variables:
 
-```json
-{
-  "PROMPT_TEMPLATE": "Your dynamic prompt here with placeholders."
-}
-```
-
-Update the file to include your desired prompt logic. The script dynamically loads this template at runtime, ensuring flexibility and modularity.
+| Variable | Default | Description |
+|---|---|---|
+| `TOKEN_COST_PER_MILLION` | 0.90 | Cost per million tokens for Ollama |
+| `MANUAL_TEST_COST` | 50.0 | Estimated manual test cost for ROI calc |
+| `MAX_COST_THRESHOLD` | 0.50 | Warning threshold per run |
+| `RATE_LIMIT_MAX_PER_MINUTE` | 5 | Max Ollama calls per minute |
+| `MAX_PLAYWRIGHT_RETRIES` | 2 | Playwright feedback loop retries |
+| `TARGET_URL` | http://localhost:3000/... | Default URL for normalizer |
 
 ## Project Structure
 
 ```bash
-- `orchestrator.py`: Pipeline orchestrator (router, normalizer, executor, cost metrics).
+- `config.py`: Consolidated constants + env-var overrides + custom exception classes.
+- `orchestrator.py`: Pipeline orchestrator (router, normalizer, executor, cost metrics, TS gate).
 - `ollama_ai.py`: Interface with the local LLM for test generation.
 - `cloud_ai.py`: Anthropic Claude cloud engine (--engine cloud).
 - `pom_generator.py`: Generates Page Object Models from test files.
@@ -259,7 +261,8 @@ Update the file to include your desired prompt logic. The script dynamically loa
 - `experiments/runner.py`: Prompt experiment runner + comparator.
 - `red_team/suite.py`: Red Team security testing suite.
 - `ml/`: ML analysis modules (prioritization, flakiness, model router, risk scorer).
-- `tests/`: Unit tests (pytest, 159+ tests covering all modules).
+- `tests/`: Unit tests (pytest, 201+ tests covering all modules).
+- `ci/smoke.spec.ts`: Deterministic Playwright smoke test for CI.
 - `generated-tests/`: AI-generated Playwright test files + test_data.json.
 - `pom/`: Generated Page Object Models.
 - `logs/pipeline.log`: Per-step audit trail with timing (JSON).

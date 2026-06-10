@@ -33,12 +33,13 @@ After any change, the agent MUST run the full verification suite:
 
 | Step | Command | Expected Result |
 | --- | --- | --- |
-| Python syntax | `python -c "import ast; ast.parse(open('orchestrator.py').read()); print('OK')"` | No syntax errors |
-| Module imports | `python -c "import pom_generator; print('OK')"` | No ImportError |
+| Python syntax | `python -c "import ast; [ast.parse(open(f).read()) for f in ['config.py','orchestrator.py','ollama_ai.py','cloud_ai.py','pom_generator.py','persistence.py','kpi.py','failure_analysis.py']]; print('OK')"` | No syntax errors |
+| Module imports | `python -c "import config; import orchestrator; import ollama_ai; import cloud_ai; import pom_generator; import persistence; import kpi; import failure_analysis; import contracts; print('OK')"` | No ImportError |
 | AI Generation | `python ollama_ai.py <url> <model>` | Test saved to `generated-tests/login.spec.ts` |
-| Playwright execution | `npx playwright test --reporter=line` | All tests pass |
-| POM generation | `python -c "import pom_generator; pom_generator.run_pom_generation()"` | Valid POM at `pom/login_page.ts` |
-| POM TS validity | Check all identifiers are valid TypeScript (camelCase, no spaces/hyphens) | No compilation errors |
+| Playwright execution | `npx playwright test ci/smoke.spec.ts --reporter=line` | All tests pass |
+| POM generation | `python -c "import pom_generator; pom_generator.run_pom_generation('login')"` | Valid POM at `pom/login_page.ts` |
+| POM TS validity | `npx tsc --noEmit --project tsconfig.json` | No compilation errors |
+| Full test suite | `python -m pytest tests/ -q` | 201+ tests pass |
 
 ### 2.3 Normalizer Safety
 
@@ -93,11 +94,11 @@ From `ai-qa-core-framework/03_personal_tooling/rules/anti_patterns.md`:
 
 Before considering a change complete, the agent MUST confirm:
 
-- [ ] Python syntax valid in all modified files
-- [ ] All existing modules import without errors
+- [ ] Python syntax valid in all modified files (including `config.py`)
+- [ ] All existing modules import without errors (including `config`)
 - [ ] AI generation produces valid test file
 - [ ] Normalizer preserves correct assertions (`.alert-success` / `.alert-error`)
-- [ ] All Playwright tests pass (generated + pre-existing)
+- [ ] All Playwright tests pass (`ci/smoke.spec.ts` + any generated)
 - [ ] POM generator produces valid TypeScript identifiers
 - [ ] No hardcoded feature names (use parameterization)
 - [ ] Pipeline output logged / observable

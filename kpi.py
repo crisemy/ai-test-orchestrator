@@ -1,6 +1,5 @@
 from rich.console import Console
 from rich.table import Table
-from typing import Optional
 
 from persistence import load_executions
 

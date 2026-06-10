@@ -209,10 +209,11 @@ class TestCheckCostThreshold:
 
 class TestValidateAndFix:
 
-    def test_file_not_found_exits(self):
+    def test_file_not_found_raises(self):
         from orchestrator import validate_and_fix
+        from config import ValidationError
         with patch("os.path.exists", return_value=False), \
-             pytest.raises(SystemExit):
+             pytest.raises(ValidationError, match="Test file not found"):
             validate_and_fix("nonexistent")
 
     def test_normalizes_and_writes_file(self):

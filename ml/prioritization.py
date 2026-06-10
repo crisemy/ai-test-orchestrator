@@ -1,6 +1,5 @@
 import json
 import os
-import re
 from datetime import datetime, timezone
 
 EXECUTION_LOG = "reports/execution_log.json"

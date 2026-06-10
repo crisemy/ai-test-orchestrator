@@ -1,8 +1,6 @@
 import os
 import json
 from datetime import datetime, timezone
-from typing import Optional
-
 from contracts import (
     ContractMetadata,
     ExecutionRecord,

@@ -4,49 +4,49 @@ import re
 import argparse
 import json
 import time
+import functools
 from datetime import datetime, timezone
+from typing import Any
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-# Initialize Rich Console
+from config import (
+    LOG_FILE,
+    EXECUTION_LOG,
+    BACKUP_DIR,
+    TOKEN_COST_PER_MILLION,
+    MANUAL_TEST_COST,
+    MAX_COST_THRESHOLD,
+    RATE_LIMIT_MAX_PER_MINUTE,
+    MAX_PLAYWRIGHT_RETRIES,
+    TARGET_URL,
+    OrchestratorError,
+    TestGenerationError,
+    ValidationError,
+    CancelledByUser,
+)
+
 console = Console()
 
-LOG_FILE = "logs/pipeline.log"
-EXECUTION_LOG = "reports/execution_log.json"
-
-# Cost constants (approximate, configurable per model)
-TOKEN_COST_PER_MILLION = 0.90   # qwen2.5-coder:7b local — ~$0.90/M tokens
-MANUAL_TEST_COST = 50.0         # avg cost of writing + maintaining a test manually ($)
-MAX_COST_THRESHOLD = 0.50       # alert if estimated cost exceeds $0.50
-
-# Rate limiting state
-_rate_limit_state = {"call_timestamps": [], "max_per_minute": 5}
-
-BACKUP_DIR = "generated-tests/backups"
+_rate_limit_state: dict[str, Any] = {"call_timestamps": [], "max_per_minute": RATE_LIMIT_MAX_PER_MINUTE}
 
 
 # -------------------------
 # INPUT SANITIZATION (Phase 3.2)
 # -------------------------
-def sanitize_url(url):
-    """Validate and sanitize URL — prevent injection via URL param."""
+def sanitize_url(url: str) -> str:
     if not url.startswith(("http://", "https://")):
         raise ValueError(f"Invalid URL protocol: {url[:20]}")
-    # Strip any newlines or control chars
     url = re.sub(r"[\r\n\t]", "", url)
-    # Block known bad characters
     if re.search(r"[<>\"'{}|^`\\]", url):
         raise ValueError(f"URL contains blocked characters: {url[:30]}")
     return url
 
 
-def sanitize_feature(feature):
-    """Sanitize feature name — strip injection vectors."""
+def sanitize_feature(feature: str) -> str:
     sanitized = feature.strip()
-    # Remove shell metacharacters
     sanitized = re.sub(r"[;&|`$(){}[\]!#~<>\\]", "", sanitized)
-    # Limit length
     sanitized = sanitized[:80]
     if not sanitized:
         raise ValueError("Feature name is empty after sanitization")
@@ -56,8 +56,7 @@ def sanitize_feature(feature):
 # -------------------------
 # TEST ROLLBACK (Phase 3.3)
 # -------------------------
-def backup_test(feature):
-    """Backup existing test file before overwriting."""
+def backup_test(feature: str) -> str | None:
     test_path = f"generated-tests/{feature}.spec.ts"
     if not os.path.exists(test_path):
         return None
@@ -69,8 +68,7 @@ def backup_test(feature):
     return backup_path
 
 
-def restore_test(feature):
-    """Restore most recent backup for a feature."""
+def restore_test(feature: str) -> bool:
     if not os.path.exists(BACKUP_DIR):
         return False
     candidates = [f for f in os.listdir(BACKUP_DIR) if f.startswith(f"{feature}.spec.ts.")]
@@ -89,8 +87,7 @@ def restore_test(feature):
 # -------------------------
 # RATE LIMITING (Phase 3.4)
 # -------------------------
-def check_rate_limit():
-    """Enforce max Ollama calls per minute."""
+def check_rate_limit() -> None:
     now = time.time()
     window_start = now - 60
     _rate_limit_state["call_timestamps"] = [
@@ -104,8 +101,7 @@ def check_rate_limit():
     _rate_limit_state["call_timestamps"].append(now)
 
 
-def check_cost_threshold(estimated_cost):
-    """Alert if estimated cost exceeds threshold."""
+def check_cost_threshold(estimated_cost: float) -> None:
     if estimated_cost > MAX_COST_THRESHOLD:
         console.print(f"[bold red]WARNING: Estimated cost ${estimated_cost:.4f} exceeds threshold ${MAX_COST_THRESHOLD}[/bold red]")
         log_pipeline("cost_threshold_exceeded", {"estimated_cost": estimated_cost, "threshold": MAX_COST_THRESHOLD})
@@ -115,7 +111,6 @@ def check_cost_threshold(estimated_cost):
 # TYPESCRIPT VALIDATION GATE (Phase 0.5)
 # -------------------------
 def validate_typescript(test_path: str) -> tuple[bool, str]:
-    """Run npx tsc --noEmit on a test file to check TypeScript validity."""
     if not os.path.exists(test_path):
         return False, f"File not found: {test_path}"
     try:
@@ -127,14 +122,14 @@ def validate_typescript(test_path: str) -> tuple[bool, str]:
             return True, ""
         return False, result.stderr[:2000] if result.stderr else result.stdout[:2000]
     except FileNotFoundError:
-        return True, ""  # Skip gate if tsc not available (graceful degrade)
+        return True, ""
     except subprocess.TimeoutExpired:
         return False, "TypeScript validation timed out (60s)"
 
 
-def track_time(label):
-    """Decorator to measure execution time of a pipeline step."""
+def track_time(label: str):
     def decorator(func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             start = time.time()
             result = func(*args, **kwargs)
@@ -148,7 +143,7 @@ def track_time(label):
 # -------------------------
 # AUDIT TRAIL
 # -------------------------
-def log_pipeline(action, details=None):
+def log_pipeline(action: str, details: dict | None = None) -> None:
     os.makedirs("logs", exist_ok=True)
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -159,7 +154,7 @@ def log_pipeline(action, details=None):
         f.write(json.dumps(entry) + "\n")
 
 
-def record_execution(url, feature, model, engine, status, metrics=None):
+def record_execution(url: str, feature: str, model: str, engine: str, status: str, metrics: dict | None = None) -> None:
     from persistence import create_metadata, save_execution
     from contracts import ExecutionRecord, ExecutionMetrics
 
@@ -193,14 +188,12 @@ def record_execution(url, feature, model, engine, status, metrics=None):
 # RUN AI AGENT
 # -------------------------
 @track_time("ai_generation")
-def run_ollama_agent(url, model, feature="login", error_context=None, engine="ollama"):
+def run_ollama_agent(url: str, model: str, feature: str, error_context: str | None = None, engine: str = "ollama") -> None:
     print(f"Running AI generator ({engine} engine)...")
 
-    # Back up existing test before overwriting
     backup_test(feature)
 
     if engine == "ollama":
-        # Rate limit check only for local LLM
         check_rate_limit()
         script = "ollama_ai.py"
     else:
@@ -217,7 +210,7 @@ def run_ollama_agent(url, model, feature="login", error_context=None, engine="ol
     if result.returncode != 0:
         print("Error running AI agent")
         print(result.stderr)
-        exit(1)
+        raise TestGenerationError(f"AI generation failed (exit code {result.returncode})")
 
 
 # -------------------------
@@ -283,12 +276,11 @@ def normalize_code(code: str) -> str:
 # -------------------------
 # VALIDATE + FIX LOOP
 # -------------------------
-def validate_and_fix(feature="login"):
+def validate_and_fix(feature: str) -> int:
     test_path = f"generated-tests/{feature}.spec.ts"
 
     if not os.path.exists(test_path):
-        print(f"Test file not found: {test_path}")
-        exit(1)
+        raise ValidationError(f"Test file not found: {test_path}")
 
     with open(test_path, "r", encoding="utf-8") as f:
         content = f.read()
@@ -317,12 +309,11 @@ def validate_and_fix(feature="login"):
 # RUN PLAYWRIGHT
 # -------------------------
 @track_time("playwright_execution")
-def run_playwright():
+def run_playwright() -> tuple[int, str, int, int]:
     print("Running Playwright tests...")
 
     result = subprocess.run(
-        "npx playwright test",
-        shell=True,
+        ["npx", "playwright", "test"],
         capture_output=True,
         text=True
     )
@@ -347,7 +338,7 @@ def run_playwright():
 # RUN POM GENERATOR
 # -------------------------
 
-def run_pom_agent(feature="login"):
+def run_pom_agent(feature: str) -> None:
     print("Generating Page Object Model...")
     from pom_generator import run_pom_generation
     run_pom_generation(feature)
@@ -356,7 +347,7 @@ def run_pom_agent(feature="login"):
 # -------------------------
 # PARSE CLI ARGUMENTS
 # -------------------------
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI Test Orchestrator CLI")
     parser.add_argument("--url", required=True, help="Target URL to test")
     parser.add_argument("--feature", required=True, help="Feature name (used for file naming)")
@@ -369,7 +360,7 @@ def parse_arguments():
 # -------------------------
 # PIPELINE (shared by engines)
 # -------------------------
-def run_pipeline(url, feature, model, engine="ollama", review=False, ml=False):
+def run_pipeline(url: str, feature: str, model: str, engine: str = "ollama", review: bool = False, ml: bool = False) -> None:
     feature_slug = feature.lower().replace(" ", "-")
     pipeline_start = time.time()
 
@@ -378,13 +369,11 @@ def run_pipeline(url, feature, model, engine="ollama", review=False, ml=False):
     total_steps = 5 if ml else 4
     step_num = 1
 
-    # Step 1: AI Generation
     console.print(Panel(f"Step {step_num}/{total_steps} — AI Generation ({engine})", style="green"))
     run_ollama_agent(url, model, feature_slug, engine=engine)
     log_pipeline("ai_generation_complete", {"feature": feature_slug})
     step_num += 1
 
-    # Step 2: Human review gate (if --review)
     if review:
         total_steps += 1
         console.print(Panel(f"Step {step_num}/{total_steps} — Human Review", style="yellow"))
@@ -392,13 +381,11 @@ def run_pipeline(url, feature, model, engine="ollama", review=False, ml=False):
         human_review(feature)
         step_num += 1
 
-    # Step 3: Normalization
     console.print(Panel(f"Step {step_num}/{total_steps} — Hard Normalization (Self-Healing)", style="yellow"))
     hallucination_fixes = validate_and_fix(feature_slug) or 0
     log_pipeline("normalization_complete", {"feature": feature_slug, "hallucination_fixes": hallucination_fixes})
     step_num += 1
 
-    # Step 4: TypeScript Validation Gate (Phase 0.5)
     console.print(Panel(f"Step {step_num}/{total_steps} — TypeScript Validation", style="cyan"))
     test_path = f"generated-tests/{feature_slug}.spec.ts"
     ts_valid, ts_error = validate_typescript(test_path)
@@ -410,12 +397,10 @@ def run_pipeline(url, feature, model, engine="ollama", review=False, ml=False):
         log_pipeline("ts_validation_passed", {"feature": feature_slug})
     step_num += 1
 
-    # Step 5: Playwright Execution (with feedback loop)
     console.print(Panel(f"Step {step_num}/{total_steps} — Playwright Execution", style="blue"))
-    max_retries = 2
     total_pw_attempts = 0
     failure_classification = None
-    for pw_attempt in range(max_retries + 1):
+    for pw_attempt in range(MAX_PLAYWRIGHT_RETRIES + 1):
         total_pw_attempts = pw_attempt + 1
         exit_code, output, passed, failed = run_playwright()
         log_pipeline("playwright_execution", {"attempt": total_pw_attempts, "exit_code": exit_code, "passed": passed, "failed": failed})
@@ -423,7 +408,6 @@ def run_pipeline(url, feature, model, engine="ollama", review=False, ml=False):
         if exit_code == 0:
             break
 
-        # Classify failure (Phase 0.4)
         from failure_analysis import classify_failure
         failure_classification = classify_failure(
             exit_code=exit_code, stdout=output, stderr="",
@@ -436,17 +420,15 @@ def run_pipeline(url, feature, model, engine="ollama", review=False, ml=False):
             "action": failure_classification.suggested_action,
         })
 
-        if pw_attempt < max_retries:
+        if pw_attempt < MAX_PLAYWRIGHT_RETRIES:
             console.print(f"[bold yellow]Tests failed (attempt {pw_attempt + 1}). Re-generating with error feedback...[/bold yellow]")
             console.print(f"[dim]Failure: {failure_classification.root_cause_class} ({failure_classification.confidence_score:.0%} confidence)[/dim]")
             log_pipeline("feedback_retry", {"attempt": pw_attempt + 1})
-            # Extract error context from Playwright output (last 1500 chars)
             error_ctx = output[-1500:] if len(output) > 1500 else output
             run_ollama_agent(url, model, feature_slug, error_ctx, engine=engine)
             validate_and_fix(feature_slug)
         else:
             console.print("[bold red]Tests failed after max retries.[/bold red]")
-            # Rollback to previous working version (Phase 3.3)
             restored = restore_test(feature_slug)
             if restored:
                 console.print("[bold yellow]Restored previous working test version from backup.[/bold yellow]")
@@ -462,12 +444,8 @@ def run_pipeline(url, feature, model, engine="ollama", review=False, ml=False):
             return
     step_num += 1
 
-    # POM Generation
     console.print(Panel(f"Step {step_num}/{total_steps} — POM Generation", style="cyan"))
-    @track_time("pom_generation")
-    def do_pom():
-        run_pom_agent(feature_slug)
-    do_pom()
+    run_pom_agent(feature_slug)
     log_pipeline("pom_generation_complete", {"feature": feature_slug})
     step_num += 1
 
@@ -522,7 +500,7 @@ def run_pipeline(url, feature, model, engine="ollama", review=False, ml=False):
 # -------------------------
 # HUMAN REVIEW GATE
 # -------------------------
-def human_review(feature):
+def human_review(feature: str) -> None:
     feature_slug = feature.lower().replace(" ", "-")
     test_path = f"generated-tests/{feature_slug}.spec.ts"
 
@@ -537,12 +515,12 @@ def human_review(feature):
     response = input("\nProceed with execution? (y/n): ").strip().lower()
     if response != "y":
         console.print("[bold red]Execution cancelled by user.[/bold red]")
-        exit(0)
+        raise CancelledByUser("Execution cancelled by user")
 
 # -------------------------
 # ML ANALYSIS (Phase 4)
 # -------------------------
-def _run_ml_analysis(feature, model):
+def _run_ml_analysis(feature: str, model: str) -> None:
     try:
         from ml.prioritization import compute_priorities, suggest_next_feature
         from ml.flakiness import detect_flaky_tests
@@ -588,10 +566,9 @@ def _run_ml_analysis(feature, model):
 # -------------------------
 # MAIN FUNCTION
 # -------------------------
-def main():
+def main() -> None:
     args = parse_arguments()
 
-    # Input sanitization (Phase 3.2)
     try:
         args.url = sanitize_url(args.url)
         args.feature = sanitize_feature(args.feature)
@@ -601,7 +578,6 @@ def main():
 
     feature_slug = args.feature.lower().replace(" ", "-")
 
-    # Display arguments in a Rich Table
     table = Table(title="CLI Arguments")
     table.add_column("Argument", style="cyan", no_wrap=True)
     table.add_column("Value", style="magenta")
@@ -615,10 +591,14 @@ def main():
         table.add_row("ML Analysis", "enabled", style="magenta")
     console.print(table)
 
-    # Call the appropriate engine
     engine_label = "Ollama (local)" if args.engine == "ollama" else "Anthropic Claude (cloud)"
     console.print(Panel(f"Using {engine_label} engine...", style="green" if args.engine == "ollama" else "blue"))
-    run_pipeline(args.url, args.feature, args.model, args.engine, args.review, args.ml)
+
+    try:
+        run_pipeline(args.url, args.feature, args.model, args.engine, args.review, args.ml)
+    except CancelledByUser:
+        console.print("[bold yellow]Pipeline cancelled by user.[/bold yellow]")
+        exit(0)
 
     console.print(Panel("Script execution completed.", style="green"))
 

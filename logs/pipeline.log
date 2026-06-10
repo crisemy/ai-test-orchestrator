@@ -48,3 +48,8 @@
 {"timestamp": "2026-06-10T18:07:35.801311+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
 {"timestamp": "2026-06-10T18:13:32.749306+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
 {"timestamp": "2026-06-10T18:15:18.492397+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
+{"timestamp": "2026-06-10T19:33:24.838641+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
+{"timestamp": "2026-06-10T19:44:17.798997+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
+{"timestamp": "2026-06-10T19:44:45.055444+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
+{"timestamp": "2026-06-10T19:44:56.303488+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
+{"timestamp": "2026-06-10T19:48:05.625450+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}

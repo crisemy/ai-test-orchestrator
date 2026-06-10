@@ -1,7 +1,5 @@
 import os
-import re
 import string
-import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -50,14 +48,14 @@ PROMPT_TEMPLATE = string.Template("""
 """)
 
 
-def extract_code(text):
+def extract_code(text: str) -> str | None:
     for fence in ["```typescript", "```javascript", "```ts", "```js", "```"]:
         if fence in text:
             return text.split(fence)[1].split("```")[0].strip()
     return None
 
 
-def is_valid_playwright(code):
+def is_valid_playwright(code: str | None) -> bool:
     if not code:
         return False
     return (
@@ -69,36 +67,38 @@ def is_valid_playwright(code):
     )
 
 
-def fallback_code():
-    return """import { test, expect } from '@playwright/test';
+def fallback_code() -> str:
+    from config import TARGET_URL
+    url = TARGET_URL
+    return f"""import {{ test, expect }} from '@playwright/test';
 
-test('Successful login', async ({ page }) => {
-  await page.goto('http://localhost:3000/playwright-ui-testing-lab.html');
+test('Successful login', async ({{ page }}) => {{
+  await page.goto('{url}');
   await page.click('text=Form Authentication');
   await page.fill('#login-username', 'tomsmith');
   await page.fill('#login-password', 'SuperSecretPassword!');
   await page.click('#login-btn');
   await expect(page.locator('#login-alert .alert-success')).toBeVisible();
-});
+}});
 
-test('Invalid login', async ({ page }) => {
-  await page.goto('http://localhost:3000/playwright-ui-testing-lab.html');
+test('Invalid login', async ({{ page }}) => {{
+  await page.goto('{url}');
   await page.click('text=Form Authentication');
   await page.fill('#login-username', 'invalid');
   await page.fill('#login-password', 'wrong');
   await page.click('#login-btn');
   await expect(page.locator('#login-alert .alert-error')).toBeVisible();
-});
+}});
 
-test('Empty fields', async ({ page }) => {
-  await page.goto('http://localhost:3000/playwright-ui-testing-lab.html');
+test('Empty fields', async ({{ page }}) => {{
+  await page.goto('{url}');
   await page.click('text=Form Authentication');
   await page.click('#login-btn');
   await expect(page.locator('#login-result')).toContainText('missing credentials');
-});"""
+}});"""
 
 
-def generate_tests(url, model="claude-3-haiku-20240307", feature="login", error_context=None):
+def generate_tests(url: str, model: str = "claude-3-haiku-20240307", feature: str = "login", error_context: str | None = None):
     print("Generating Playwright tests via Anthropic Claude...\n")
 
     global OUTPUT_FILE
@@ -166,7 +166,7 @@ Please fix the test to avoid this error."""
     save_file(fallback_code())
 
 
-def save_file(code):
+def save_file(code: str) -> None:
     os.makedirs("generated-tests", exist_ok=True)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         f.write(code)
