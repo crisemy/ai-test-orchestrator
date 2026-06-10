@@ -5,6 +5,8 @@ import argparse
 import json
 import time
 import functools
+import shutil
+import sys
 from datetime import datetime, timezone
 from typing import Any
 from rich.console import Console
@@ -26,6 +28,9 @@ from config import (
     ValidationError,
     CancelledByUser,
 )
+
+# Resolve npx executable (npx.cmd on Windows, npx on Linux/macOS)
+NPX = shutil.which("npx") or shutil.which("npx.cmd") or "npx"
 
 console = Console()
 
@@ -115,7 +120,7 @@ def validate_typescript(test_path: str) -> tuple[bool, str]:
         return False, f"File not found: {test_path}"
     try:
         result = subprocess.run(
-            ["npx", "tsc", "--noEmit", "--project", "tsconfig.json"],
+            [NPX, "tsc", "--noEmit", "--project", "tsconfig.json"],
             capture_output=True, text=True, timeout=60
         )
         if result.returncode == 0:
@@ -313,7 +318,7 @@ def run_playwright() -> tuple[int, str, int, int]:
     print("Running Playwright tests...")
 
     result = subprocess.run(
-        ["npx", "playwright", "test"],
+        [NPX, "playwright", "test"],
         capture_output=True,
         text=True
     )

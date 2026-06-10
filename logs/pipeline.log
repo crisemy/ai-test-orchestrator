@@ -53,3 +53,11 @@
 {"timestamp": "2026-06-10T19:44:45.055444+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
 {"timestamp": "2026-06-10T19:44:56.303488+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
 {"timestamp": "2026-06-10T19:48:05.625450+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
+{"timestamp": "2026-06-10T19:59:23.161470+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
+{"timestamp": "2026-06-10T20:00:11.654919+00:00", "action": "pipeline_start", "details": {"url": "http://localhost:3000/playwright-ui-testing-lab.html", "feature": "login", "model": "qwen2.5-coder:7b", "engine": "ollama"}}
+{"timestamp": "2026-06-10T20:01:23.218610+00:00", "action": "timing", "details": {"step": "ai_generation", "duration_seconds": 71.56}}
+{"timestamp": "2026-06-10T20:01:23.219610+00:00", "action": "ai_generation_complete", "details": {"feature": "login"}}
+{"timestamp": "2026-06-10T20:01:23.220610+00:00", "action": "human_review", "details": {"feature": "login"}}
+{"timestamp": "2026-06-10T20:04:52.610794+00:00", "action": "normalization_complete", "details": {"feature": "login", "hallucination_fixes": 0}}
+{"timestamp": "2026-06-10T20:04:52.616300+00:00", "action": "ts_validation_passed", "details": {"feature": "login"}}
+{"timestamp": "2026-06-10T20:06:42.045263+00:00", "action": "cost_threshold_exceeded", "details": {"estimated_cost": 1.0, "threshold": 0.5}}
