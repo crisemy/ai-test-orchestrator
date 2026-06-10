@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./out",
+    "lib": ["ES2022"],
+    "types": ["node"]
+  },
+  "include": ["generated-tests/**/*.ts", "pom/**/*.ts"],
+  "exclude": ["node_modules"]
+}

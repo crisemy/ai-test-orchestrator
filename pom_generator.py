@@ -1,8 +1,28 @@
 import os
 import re
 
-TEST_PATH = "generated-tests/login.spec.ts"
-OUTPUT_PATH = "pom/login_page.ts"
+
+# -------------------------
+# CLEAN SELECTOR → VALID TS IDENTIFIER
+# -------------------------
+def clean_selector_name(sel):
+    name = sel
+    # strip text= prefix
+    name = re.sub(r'^text=', '', name)
+    # remove selector syntax characters
+    name = name.replace('#', '').replace('.', '').replace('[', '').replace(']', '').replace('"', '').replace("'", "")
+    # split by any non-alphanumeric character
+    parts = re.split(r'[^a-zA-Z0-9]+', name)
+    parts = [p for p in parts if p]
+    if not parts:
+        return 'element'
+    # camelCase: first part lowercase, rest capitalized
+    result = parts[0].lower() + ''.join(p.capitalize() for p in parts[1:])
+    # avoid reserved-ish names
+    if result == 'type':
+        result = 'btn'
+    return result
+
 
 # -------------------------
 # EXTRACT SELECTORS
@@ -29,34 +49,50 @@ def extract_selectors(code):
 # -------------------------
 # GENERATE POM (DETERMINISTIC)
 # -------------------------
-def generate_pom(selectors):
+def feature_class_name(feature):
+    words = feature.replace("-", " ").replace("_", " ").split()
+    return "".join(w.capitalize() for w in words) + "Page"
+
+def generate_pom(selectors, feature="login"):
+    locators = []
+    for sel in selectors:
+        locators.append((clean_selector_name(sel), sel))
+
+    class_name = feature_class_name(feature)
+
     lines = []
 
     lines.append("import { Page, Locator } from '@playwright/test';")
     lines.append("")
-    lines.append("export class LoginPage {")
+    lines.append(f"export class {class_name} {{")
     lines.append("  readonly page: Page;")
 
-    for sel in selectors:
-        clean_name = sel.replace("#", "").replace(".", "").replace("[", "").replace("]", "").replace("=", "").replace('"', "").replace("'", "")
-        clean_name = clean_name.replace("type", "btn").replace("submit", "submit")
-        lines.append(f"  readonly {clean_name}: Locator;")
+    for name, _ in locators:
+        lines.append(f"  readonly {name}: Locator;")
 
     lines.append("")
     lines.append("  constructor(page: Page) {")
     lines.append("    this.page = page;")
 
-    for sel in selectors:
-        clean_name = sel.replace("#", "").replace(".", "").replace("[", "").replace("]", "").replace("=", "").replace('"', "").replace("'", "")
-        clean_name = clean_name.replace("type", "btn").replace("submit", "submit")
-        lines.append(f"    this.{clean_name} = page.locator('{sel}');")
+    for name, sel in locators:
+        lines.append(f"    this.{name} = page.locator('{sel}');")
 
     lines.append("  }\n")
 
+    # detect field locators for the login method
+    username_sel = next((n for n, s in locators if 'username' in s.lower()), None)
+    password_sel = next((n for n, s in locators if 'password' in s.lower()), None)
+    login_btn = next((n for n, s in locators if 'btn' in n.lower()), None)
+    if not login_btn:
+        login_btn = next((n for n, s in locators if 'login' in n.lower() and 'username' not in n.lower() and 'password' not in n.lower() and 'alert' not in n.lower() and 'result' not in n.lower()), None)
+
     lines.append("  async login(username: string, password: string) {")
-    lines.append("    await this.username.fill(username);")
-    lines.append("    await this.password.fill(password);")
-    lines.append("    await this.login.click();")
+    if username_sel:
+        lines.append(f"    await this.{username_sel}.fill(username);")
+    if password_sel:
+        lines.append(f"    await this.{password_sel}.fill(password);")
+    if login_btn:
+        lines.append(f"    await this.{login_btn}.click();")
     lines.append("  }")
     lines.append("}")
 
@@ -66,14 +102,17 @@ def generate_pom(selectors):
 # -------------------------
 # MAIN
 # -------------------------
-def run_pom_generation():
+def run_pom_generation(feature="login"):
     print("Generating POM (deterministic)...")
 
-    if not os.path.exists(TEST_PATH):
-        print("Test file not found")
+    test_path = f"generated-tests/{feature}.spec.ts"
+    output_path = f"pom/{feature}_page.ts"
+
+    if not os.path.exists(test_path):
+        print(f"Test file not found: {test_path}")
         return
 
-    with open(TEST_PATH, "r", encoding="utf-8") as f:
+    with open(test_path, "r", encoding="utf-8") as f:
         code = f.read()
 
     selectors = extract_selectors(code)
@@ -82,14 +121,14 @@ def run_pom_generation():
         print("No selectors found")
         return
 
-    pom_code = generate_pom(selectors)
+    pom_code = generate_pom(selectors, feature)
 
     os.makedirs("pom", exist_ok=True)
 
-    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(pom_code)
 
-    print(f"POM generated at: {OUTPUT_PATH}")
+    print(f"POM generated at: {output_path}")
 
 def inject_pom_into_test(test_path, pom_path):
     """

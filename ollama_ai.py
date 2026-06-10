@@ -12,7 +12,7 @@ with open('prompt_template.json', 'r') as file:
 # Alternatively, you can use "glm-5.1:cloud", "qwen3.5:cloud", etc for a more code-focused models.
 MODEL = 'qwen2.5-coder:7b'
 
-OUTPUT_FILE = "generated-tests/login.spec.ts"
+OUTPUT_FILE = "generated-tests/login.spec.ts"  # default, overridden by --feature arg
 
 # -------------------------
 # Dynamic Prompt Template
@@ -125,19 +125,32 @@ test('Empty fields', async ({ page }) => {
 # -------------------------
 # Generate tests using LLM (TypeScript output)
 # -------------------------
-def generate_tests(url):
+def generate_tests(url, feature="login", error_context=None):
 
     print("Generating Playwright tests (TypeScript)...\n")
+
+    global OUTPUT_FILE
+    OUTPUT_FILE = f"generated-tests/{feature}.spec.ts"
+
+    prompt = PROMPT_TEMPLATE.substitute(url=url)
+
+    # Append error feedback if provided (feedback loop)
+    if error_context:
+        prompt += f"""
+
+The previous version of this test failed with the following error:
+{error_context}
+
+Please fix the test to avoid this error."""
+        print(f"\nFeedback loop — injecting error context:\n{error_context}\n")
 
     for attempt in range(3):
 
         print(f"\nAttempt {attempt + 1}")
 
-        dynamic_prompt = PROMPT_TEMPLATE.substitute(url=url)
-
         response = ollama.chat(
             model=MODEL,
-            messages=[{"role": "user", "content": dynamic_prompt}],
+            messages=[{"role": "user", "content": prompt}],
             options={
                 "temperature": 0.2
             }
@@ -185,11 +198,13 @@ def save_file(code):
 # -------------------------
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) != 3:
-        print("Usage: python ollama-ai.py <url> <model>")
+    if len(sys.argv) < 3:
+        print("Usage: python ollama_ai.py <url> <model> [feature] [error_context]")
         exit(1)
 
     url = sys.argv[1]
     MODEL = sys.argv[2]
+    feature = sys.argv[3] if len(sys.argv) > 3 else "login"
+    error_context = sys.argv[4] if len(sys.argv) > 4 else None
 
-    generate_tests(url)
+    generate_tests(url, feature, error_context)
