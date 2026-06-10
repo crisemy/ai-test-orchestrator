@@ -52,7 +52,13 @@ The `orchestrator.py` script manages the entire lifecycle:
 - **Model**: Pull the required model:
 
 ```bash
-  ollama pull qwen2.5-coder:7b # Or other models of your choice
+  ollama pull qwen2.5-coder:7b
+```
+
+- **Cloud API key** (optional, for `--engine cloud`): Create a `.env` file:
+
+```bash
+echo ANTHROPIC_API_KEY=sk-ant-... > .env
 ```
 
 ## Docker (CI / Containerized Run)
@@ -87,9 +93,7 @@ git clone https://github.com/crisemy/ai-test-orchestrator.git
 cd ai-test-orchestrator
 ```
 
-### 2. Python Setup
-
-Create a virtual environment and install dependencies:
+### 2. Python Environment
 
 ```bash
 python -m venv .venv
@@ -101,54 +105,58 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Node.js Setup
-
-Install Playwright and its dependencies:
+### 3. Node.js + Playwright
 
 ```bash
 npm install
 npx playwright install --with-deps
 ```
 
-## Serve the Test App
-
-The project includes a local SPA (`ui-testing-lab/`) that serves as the target for all generated tests. You need to serve it before running the orchestrator:
+### 4. Verify Setup (Run Unit Tests)
 
 ```bash
-# Start the server (port 3000)
+python -m pytest tests/ -q
+# Expected: 201+ passed
+```
+
+### 5. Serve the Test App (in a separate terminal)
+
+The orchestrator needs the local SPA running on port 3000:
+
+```bash
 npx http-server ui-testing-lab -p 3000 --silent
 ```
 
-> The server is also auto-started by Playwright's `webServer` config when running `npx playwright test` directly, but the orchestrator pipeline requires it to be running beforehand.
+> Playwright's `webServer` config auto-starts the server when running `npx playwright test` directly, but the orchestrator pipeline requires it to be running beforehand.
 
 ## Usage
 
 ### Run the Full Pipeline
 
-The orchestrator will now run the AI agent, fix the code, execute tests, and generate POMs with enhanced terminal output and refactoring capabilities.
-Make sure to download the proper LLM in your .venv. For instance: "ollama pull qwen2.5-coder:7b"
+Make sure the test app is running in another terminal (step 5 above), then:
 
 ```bash
-# Make sure ui-testing-lab is served first (see "Serve the Test App" above)
-python orchestrator.py --url "http://localhost:3000/playwright-ui-testing-lab.html" --feature "login" --model "qwen2.5-coder:7b" --engine "ollama"
+python orchestrator.py \
+  --url "http://localhost:3000/playwright-ui-testing-lab.html" \
+  --feature "login" \
+  --model "qwen2.5-coder:7b" \
+  --engine "ollama"
+```
 
+### Variations
+
+```bash
 # With human review gate (pauses after AI generation for approval)
-python orchestrator.py --url "..." --feature "login" --model "qwen2.5-coder:7b" --engine "ollama" --review
+python orchestrator.py --url "http://localhost:3000/playwright-ui-testing-lab.html" --feature "login" --model "qwen2.5-coder:7b" --engine "ollama" --review
 
 # Multi-feature: generate and test any feature
-python orchestrator.py --url "..." --feature "checkout" --model "qwen2.5-coder:7b" --engine "ollama"
+python orchestrator.py --url "http://localhost:3000/playwright-ui-testing-lab.html" --feature "checkout" --model "qwen2.5-coder:7b" --engine "ollama"
 
-# With cloud engine (Anthropic Claude)
-python orchestrator.py --url "..." --feature "login" --model "claude-3-haiku-20240307" --engine "cloud"
+# With cloud engine (requires ANTHROPIC_API_KEY in .env)
+python orchestrator.py --url "http://localhost:3000/playwright-ui-testing-lab.html" --feature "login" --model "claude-3-haiku-20240307" --engine "cloud"
 
 # With ML analysis (prioritization, flakiness, model routing, risk scoring)
-python orchestrator.py --url "..." --feature "login" --model "qwen2.5-coder:7b" --engine "ollama" --ml
-
-# ML analysis standalone
-python -c "from ml.prioritization import compute_priorities; print(compute_priorities())"
-python -c "from ml.flakiness import detect_flaky_tests; print(detect_flaky_tests())"
-python -c "from ml.model_router import select_model; print(select_model('login'))"
-python -c "from ml.risk_scorer import compute_risk_score; print(compute_risk_score('login'))"
+python orchestrator.py --url "http://localhost:3000/playwright-ui-testing-lab.html" --feature "login" --model "qwen2.5-coder:7b" --engine "ollama" --ml
 ```
 
 ### Rich Terminal Output
