@@ -30,4 +30,5 @@ RUN npm install typescript
 EXPOSE 3000
 
 # Default: show help
+ENTRYPOINT ["python", "orchestrator.py"]
 CMD ["--help"]

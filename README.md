@@ -71,9 +71,9 @@ docker run --rm --network host ai-test-orchestrator \
   --url "http://host.docker.internal:3000/playwright-ui-testing-lab.html" \
   --feature "login" --model "qwen2.5-coder:7b" --engine ollama
 
-# Run standalone Playwright tests (auto-starts ui-testing-lab server)
-docker run --rm -p 3000:3000 ai-test-orchestrator \
-  sh -c "npx http-server ui-testing-lab -p 3000 --silent & npx playwright test --reporter=line"
+# Run standalone Playwright tests (override entrypoint for shell access)
+docker run --rm -p 3000:3000 --entrypoint sh ai-test-orchestrator \
+  -c "npx http-server ui-testing-lab -p 3000 --silent & npx playwright test --reporter=line"
 ```
 
 The image is automatically built and pushed to `ghcr.io/crisemy/ai-test-orchestrator` on version tags. See `.github/workflows/` for CI pipeline and registry workflows.
