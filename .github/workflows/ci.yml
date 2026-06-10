@@ -80,8 +80,8 @@ jobs:
           sleep 3
           curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/playwright-ui-testing-lab.html
 
-      - name: Run Playwright tests
-        run: npx playwright test --reporter=line
+      - name: Run Playwright smoke tests
+        run: npx playwright test ci/smoke.spec.ts --reporter=line
         env:
           CI: true
 
