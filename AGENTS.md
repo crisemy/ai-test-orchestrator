@@ -9,7 +9,9 @@ This file defines the mandatory behavior, verification protocol, and operational
 Before making any code change, the agent MUST:
 
 1. **Read `CONTEXT.md`** — Understand project architecture, data flow, and module responsibilities.
-2. **Read files to be modified** — Full read, not just grep snippets.
+2. **Read `CONTRIBUTING.md`** — Understand contribution guidelines and process.
+3. **Read `LICENSE`** — Confirm license terms are respected.
+4. **Read files to be modified** — Full read, not just grep snippets.
 3. **Identify affected skills** — Map the change to the relevant CORE skill(s) and verify which other modules depend on it.
 4. **Check the pipeline integrity** — Ensure the proposed change does not break any stage of the linear pipeline (Generation → Normalization → Execution → POM).
 
@@ -34,6 +36,7 @@ After any change, the agent MUST run the full verification suite:
 | Step | Command | Expected Result |
 | --- | --- | --- |
 | Python syntax | `python -c "import ast; [ast.parse(open(f).read()) for f in ['config.py','orchestrator.py','ollama_ai.py','cloud_ai.py','pom_generator.py','persistence.py','kpi.py','failure_analysis.py']]; print('OK')"` | No syntax errors |
+| Pyproject valid | `python -c "import tomllib; tomllib.load(open('pyproject.toml','rb')); print('OK')"` | No parse errors |
 | Module imports | `python -c "import config; import orchestrator; import ollama_ai; import cloud_ai; import pom_generator; import persistence; import kpi; import failure_analysis; import contracts; print('OK')"` | No ImportError |
 | AI Generation | `python ollama_ai.py <url> <model>` | Test saved to `generated-tests/login.spec.ts` |
 | Playwright execution | `npx playwright test ci/smoke.spec.ts --reporter=line` | All tests pass |

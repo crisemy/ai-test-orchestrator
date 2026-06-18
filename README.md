@@ -2,6 +2,9 @@
 
 [![CI](https://github.com/crisemy/ai-test-orchestrator/actions/workflows/ci.yml/badge.svg)](https://github.com/crisemy/ai-test-orchestrator/actions/workflows/ci.yml)
 [![Docker](https://github.com/crisemy/ai-test-orchestrator/actions/workflows/docker.yml/badge.svg)](https://github.com/crisemy/ai-test-orchestrator/actions/workflows/docker.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Contributing](https://img.shields.io/badge/contributing-guide-brightgreen.svg)](CONTRIBUTING.md)
+[![Code of Conduct](https://img.shields.io/badge/code%20of-conduct-ff69b4.svg)](CODE_OF_CONDUCT.md)
 [![Playwright](https://img.shields.io/badge/playwright-%232EAD33.svg?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
 [![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/)
 [![Ollama](https://img.shields.io/badge/Ollama-black?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.com/)
@@ -34,6 +37,20 @@ An intelligent, self-healing E2E testing pipeline that leverages Local LLMs (via
 - **Automated Execution**: Seamlessly triggers Playwright runners and captures real-time results.
 - **Page Object Model (POM) Evolution**: Dynamically extracts selectors from generated tests and refactors them into POM structures.
 - **Local & Private**: Powered by Ollama, ensuring your testing logic and data stay on your machine.
+
+## Quick Demo (Windows)
+
+Run the full pipeline with a single command:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\demo.ps1
+```
+
+The script checks prerequisites, creates a Python venv, installs all dependencies,
+starts the test app, runs the orchestrator, and prints the dashboard URL.
+Requires [Ollama](https://ollama.com/) with `qwen2.5-coder:7b` pulled.
+
+---
 
 ## Orchestration Workflow
 
@@ -284,4 +301,11 @@ Hardcoded constants (cost thresholds, rate limits, retries, URL defaults) are co
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) and
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before submitting a pull request.

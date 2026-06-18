@@ -32,10 +32,16 @@ ai-test-orchestrator/
 ├── .vscode/
 │   ├── launch.json               # Debug config for "Run Ollama Script"
 │   └── settings.json
+├── LICENSE                       # MIT License
 ├── README.md
 ├── AGENTS.md                     # AI agent behavior rules (extends ai-qa-core-framework)
 ├── CONTEXT.md                    # This file
+├── CONTRIBUTING.md               # Contribution guidelines
+├── CODE_OF_CONDUCT.md            # Contributor Covenant v2.1
+├── CHANGELOG.md                  # Release history
 ├── IMPROVEMENT-PLAN.md           # Phased improvement roadmap
+├── pyproject.toml                # Python project metadata + tool config
+├── demo.ps1                      # One-command Windows demo script
 ├── package.json                  # DevDependency: @playwright/test
 ├── package-lock.json
 ├── playwright.config.js          # HTML reporter + webServer ui-testing-lab

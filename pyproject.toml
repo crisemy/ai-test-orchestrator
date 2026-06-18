@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=64.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "ai-test-orchestrator"
+version = "1.0.0"
+description = "AI-powered self-healing E2E testing pipeline using local LLMs (Ollama) and Playwright"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Cristian Nadj", email = "crisemy@gmail.com" },
+]
+keywords = ["testing", "playwright", "llm", "ollama", "e2e", "qa"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = [
+    "requests>=2.32",
+    "pydantic>=2.9",
+    "rich>=13.7",
+    "python-dotenv>=1.0",
+    "ollama>=0.4",
+    "anthropic>=0.49",
+    "pandas>=3.0",
+    "scikit-learn>=1.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/crisemy/ai-test-orchestrator"
+Repository = "https://github.com/crisemy/ai-test-orchestrator"
+Issues = "https://github.com/crisemy/ai-test-orchestrator/issues"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
