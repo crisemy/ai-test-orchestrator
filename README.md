@@ -163,7 +163,7 @@ python orchestrator.py \
 ### CLI Arguments Reference
 
 | Argument | Required | Description |
-|---|---|---|
+| --- | --- | --- |
 | `--url` | Yes | **Target URL** of the application to test. Must be a fully qualified URL (e.g. `http://localhost:3000/playwright-ui-testing-lab.html`). The pipeline scrapes this page to generate selectors and scenarios. For a remote app, use its public URL; for the bundled test app, ensure `http-server` is running first (see step 5). |
 | `--feature` | Yes | **Feature name** for file naming and scope. Used to create `generated-tests/{feature}.spec.ts` and `pom/{feature}_page.ts`. Examples: `login`, `checkout`, `registration`, `search`. Keep it alphanumeric (no spaces). |
 | `--model` | Yes | **Model identifier** for the generation engine. For `--engine ollama`, use the Ollama model tag (e.g. `qwen2.5-coder:7b`, `codellama:7b`). For `--engine cloud`, use an Anthropic model name (e.g. `claude-3-haiku-20240307`). |
@@ -272,13 +272,13 @@ Ensure that the `reports/html-report` directory is accessible after running the 
 Hardcoded constants (cost thresholds, rate limits, retries, URL defaults) are consolidated in `config.py` and overridable via environment variables:
 
 | Variable | Default | Description |
-|---|---|---|
+| --- | --- | --- |
 | `TOKEN_COST_PER_MILLION` | 0.90 | Cost per million tokens for Ollama |
 | `MANUAL_TEST_COST` | 50.0 | Estimated manual test cost for ROI calc |
 | `MAX_COST_THRESHOLD` | 0.50 | Warning threshold per run |
 | `RATE_LIMIT_MAX_PER_MINUTE` | 5 | Max Ollama calls per minute |
 | `MAX_PLAYWRIGHT_RETRIES` | 2 | Playwright feedback loop retries |
-| `TARGET_URL` | http://localhost:3000/... | Default URL for normalizer |
+| `TARGET_URL` | <http://localhost:3000/...> | Default URL for normalizer |
 
 ## Project Structure
 
