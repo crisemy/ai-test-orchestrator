@@ -160,6 +160,17 @@ python orchestrator.py \
   --engine "ollama"
 ```
 
+### CLI Arguments Reference
+
+| Argument | Required | Description |
+|---|---|---|
+| `--url` | Yes | **Target URL** of the application to test. Must be a fully qualified URL (e.g. `http://localhost:3000/playwright-ui-testing-lab.html`). The pipeline scrapes this page to generate selectors and scenarios. For a remote app, use its public URL; for the bundled test app, ensure `http-server` is running first (see step 5). |
+| `--feature` | Yes | **Feature name** for file naming and scope. Used to create `generated-tests/{feature}.spec.ts` and `pom/{feature}_page.ts`. Examples: `login`, `checkout`, `registration`, `search`. Keep it alphanumeric (no spaces). |
+| `--model` | Yes | **Model identifier** for the generation engine. For `--engine ollama`, use the Ollama model tag (e.g. `qwen2.5-coder:7b`, `codellama:7b`). For `--engine cloud`, use an Anthropic model name (e.g. `claude-3-haiku-20240307`). |
+| `--engine` | Yes | **Generation engine**: `ollama` (local, requires Ollama running) or `cloud` (Anthropic, requires `ANTHROPIC_API_KEY` in `.env`). |
+| `--review` | No | **Human review gate**. When set, the pipeline pauses after AI generation to display the test in a Rich panel and asks for approval before executing. |
+| `--ml` | No | **ML analysis phase**. Enables post-pipeline intelligence: test prioritization, flakiness detection, model routing, and risk scoring. |
+
 ### Variations
 
 ```bash

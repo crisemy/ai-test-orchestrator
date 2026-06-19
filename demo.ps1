@@ -1,3 +1,4 @@
+﻿# This file must be UTF-8 with BOM for PowerShell on Windows.
 <#
 .SYNOPSIS
   One-command demo of the AI Test Orchestrator pipeline.
@@ -11,11 +12,12 @@
 $ErrorActionPreference = "Stop"
 $Host.UI.RawUI.WindowTitle = "AI Test Orchestrator — Demo"
 
-$RED   = "`e[31m"
-$GREEN = "`e[32m"
-$YELLOW = "`e[33m"
-$CYAN  = "`e[36m"
-$RESET = "`e[0m"
+$ESC = [char]27
+$RED   = "${ESC}[31m"
+$GREEN = "${ESC}[32m"
+$YELLOW = "${ESC}[33m"
+$CYAN  = "${ESC}[36m"
+$RESET = "${ESC}[0m"
 
 function Write-Status($icon, $text) { Write-Host "${icon} ${text}" }
 function Write-Ok($text)    { Write-Host "${GREEN}✓ ${text}${RESET}" }
@@ -37,13 +39,13 @@ $nodeVer = node --version 2>$null
 if (-not $nodeVer) { Write-Err "Node.js not found. Install Node.js 18+ and try again." }
 Write-Ok "Node.js: $nodeVer"
 
-$ollamaRunning = curl -s http://localhost:11434/api/tags 2>$null
+$ollamaRunning = curl.exe -s http://localhost:11434/api/tags 2>$null
 if (-not $ollamaRunning) { Write-Warn "Ollama not detected on port 11434. Generation will fail." }
 else { Write-Ok "Ollama is running" }
 
 # Check for the model
 if ($ollamaRunning) {
-    $models = (curl -s http://localhost:11434/api/tags | ConvertFrom-Json).models
+    $models = (curl.exe -s http://localhost:11434/api/tags | ConvertFrom-Json).models
     $hasModel = $models | Where-Object { $_.name -like "qwen2.5-coder*" }
     if (-not $hasModel) {
         Write-Warn "qwen2.5-coder model not found. Run: ollama pull qwen2.5-coder:7b"
